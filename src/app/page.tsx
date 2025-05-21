@@ -27,7 +27,7 @@ export default function Home(){
     return (
         <main className="flex items-center justify-center min-h-screen bg-gray-100">
             <h1 className="center text-3xl font-bold text-red-900" >
-                Tailwind sudah ada!!!
+                Tailwind sudah ada ya itu lahhh!!gugiu!
             </h1>
         </main>
     );

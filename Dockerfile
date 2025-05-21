@@ -13,4 +13,5 @@ RUN npm run build
 #buka port
 EXPOSE 3000
 #jalankan aplikasi
-CMD ["npm","start"]
+# CMD ["npm","start"] #untuk produksi
+CMD ["npm","run","dev"]
