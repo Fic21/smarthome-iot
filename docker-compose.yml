@@ -10,5 +10,4 @@ services:
       - .:/app
       - /app/node_modules
     environment:
-      - CHOKIDAR_USEPOLLING=true  # agar hot-reload jalan di Docker
-    command: npm run dev
+      - NODE_ENV=development

@@ -20,7 +20,12 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
+      "@/app*": ["app/*"],
+       "@/components*": ["components/*"],
+        "@/lib*": ["lib/*"],
+         "@/models*": ["models/*"],
+          "@/services*": ["services/*"],
+           "@/types*": ["types/*"],
       // "@/*": ["./*"]
     }
   },

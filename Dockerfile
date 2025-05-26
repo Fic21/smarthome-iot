@@ -1,17 +1,20 @@
-#image resmi Node.js
-FROM node:18
-#Funsi buat direktori kerja dalam container
+# Development base
+FROM node:18-alpine
+
+# Set working dir
 WORKDIR /app
-#salin package.json dan package-lock.json
-COPY package*.json ./
-#install depedency
+
+# Copy package files
+COPY package.json package-lock.json* ./
+
+# Install dependencies (pastikan bcryptjs ikut masuk)
 RUN npm install
-#menyalin semua sc
+
+# Copy semua file proyek
 COPY . .
-#buil project Next.js
-RUN npm run build
-#buka port
+
+# Expose port
 EXPOSE 3000
-#jalankan aplikasi
-# CMD ["npm","start"] #untuk produksi
-CMD ["npm","run","dev"]
+
+# Jalankan dev server
+CMD ["npm", "run", "dev"]
