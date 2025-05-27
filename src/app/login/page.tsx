@@ -28,6 +28,7 @@ export default function LoginPage() {
       } else {
         setMessage(`Welcome, ${data.user.name}`);
         // Bisa redirect di sini: window.location.href = '/dashboard';
+        window.location.href = '/dasboard/users'
       }
     } catch (err) {
       setMessage('Failed to connect to server');
