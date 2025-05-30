@@ -1,180 +1,363 @@
 "use client";
 
-import React, { useState } from "react";
-import NavbarUser from "@/components/navbarUser/page";
-import CardDevice from "@/components/cardDevice/page";
-
-interface Device {
-  id: string;
-  name: string;
-  status: "publisher" | "subscriber";
-  type: "realtime" | "onoff";
-  history: Array<{ timestamp: string; value: any }>;
-}
-
-export default function DashboardUsersPage() {
-  const [devices, setDevices] = useState<Device[]>([]);
-  const [newDeviceName, setNewDeviceName] = useState("");
-  const [newDeviceStatus, setNewDeviceStatus] = useState<"publisher" | "subscriber">("publisher");
-  const [newDeviceType, setNewDeviceType] = useState<"realtime" | "onoff">("realtime");
-  const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
-
-  // Tambah device baru
-  function addDevice() {
-    if (!newDeviceName.trim()) return alert("Device name is required");
-    const newDevice: Device = {
-      id: Date.now().toString(),
-      name: newDeviceName,
-      status: newDeviceStatus,
-      type: newDeviceType,
-      history: [],
-    };
-    setDevices([...devices, newDevice]);
-    setNewDeviceName("");
-  }
-
-  // Hapus device
-  function deleteDevice(id: string) {
-    setDevices(devices.filter((d) => d.id !== id));
-    if (selectedDevice?.id === id) setSelectedDevice(null);
-  }
-
-  // Edit device name (simple rename)
-  function editDevice(id: string) {
-    const newName = prompt("Enter new device name");
-    if (!newName) return;
-    setDevices(devices.map(d => d.id === id ? { ...d, name: newName } : d));
-  }
-
-  // Simulasi data device history
-  // Untuk demo, kita isi beberapa data dummy saat device realtime dipilih
-  React.useEffect(() => {
-    if (selectedDevice && selectedDevice.type === "realtime") {
-      // Simulasi data grafik realtime bertambah tiap 2 detik
-      const interval = setInterval(() => {
-        setDevices((oldDevices) =>
-          oldDevices.map((d) => {
-            if (d.id === selectedDevice.id) {
-              const newValue = Math.floor(Math.random() * 100);
-              const newHistory = [...d.history, { timestamp: new Date().toLocaleTimeString(), value: newValue }];
-              return { ...d, history: newHistory.slice(-10) }; // simpan 10 data terakhir
-            }
-            return d;
-          })
-        );
-      }, 2000);
-      return () => clearInterval(interval);
-    }
-  }, [selectedDevice]);
+// ======================
+// IMPORT COMPONENT & HOOK
+// ======================
+import Navbar from "@/componentsNavbar/Navbar";
+import { useDeviceManager } from "@/apphooks/useDeviceManager"; // pastikan path benar
+import ButtonForm from "@/componentsCardConfiguration/ButtonForm";
+import SwitchForm from "@/componentsCardConfiguration/SwitchForm";
+import SeekBarForm from "@/componentsCardConfiguration/SeekBarForm";
+import ComboBoxForm from "@/componentsCardConfiguration/ComboBoxForm";
+import ColorPickerForm from "@/componentsCardConfiguration/ColorPickerForm";
+import MultiButtonForm from "@/componentsCardConfiguration/MultiButtonForm";
+import TimePickerForm from "@/componentsCardConfiguration/TimePicker";
+// import PublisherTextCard from "@/componentsCardInterface/PublisherTextCard";
+// import SubriberCard from "@/componentsCardInterface/SubcriberCard";
+import SubcriberForm from "@/componentsCardConfiguration/SubcriberForm";
+import SubcriberCard from "@/componentsCardInterface/SubcriberCard";
+import PublisherTextCard from "@/componentsCardInterface/PublisherTextCard";
+import PublisherButtonCard from "@/componentsCardInterface/PublisherButtonCard";
+import PublisherSwitchCard from "@/componentsCardInterface/PublisherSwitchCard";
+import PublisherSeekBarCard from "@/componentsCardInterface/PublisherSeekBarCard";
+import PublisherComboBoxCard from "@/componentsCardInterface/PublisherComboBoxCard";
+import PublisherColorPickerCard from "@/componentsCardInterface/PublisherColoerPickerCard";
+import PublisherMultiButtonCard from "@/componentsCardInterface/PublisherMultiButtonCard";
+import PublisherTimePickerCard from "@/componentsCardInterface/PublisherTimePickerCard";
+import PublisherLightCard from "@/componentsCardInterface/PublisherLightCard";
+import PublisherMotorCard from "@/componentsCardInterface/PublisherMotorCard";
+// ======================
+// MAIN DASHBOARD COMPONENT
+// ======================
+export default function Dashboard() {
+  const {
+    view,
+    setView,
+    devices,
+    setDevices,
+    form,
+    setForm,
+    detail,
+    setDetail,
+    selectedPublisher,
+    setSelectedPublisher,
+    selectedInputTambahan,
+    // setSelectedInputTambahan,
+    publisherOptions,
+    handleSave,
+    handleInputChange,
+    handleAddItem,
+    handleDeleteItem,
+    // handleDeleteCard,
+    // handleEditCard,
+    handleInputChangeDropdown,
+    // handleDetail,
+  } = useDeviceManager();
 
   return (
-    <>
-      <NavbarUser />
+    <div className="min-h-screen bg-gray-100">
+      {/* ========== NAVBAR ========== */}
+      <Navbar />
 
-      <main className="p-6 bg-gray-100 min-h-screen">
-        {/* Bagian utama 1 - Tambah device dan list device */}
-        <section className="mb-8">
-          <div className="flex gap-4 mb-4 items-center">
-            <input
-              type="text"
-              placeholder="Device name"
-              value={newDeviceName}
-              onChange={(e) => setNewDeviceName(e.target.value)}
-              className="p-2 border rounded flex-grow"
-            />
-            <select
-              value={newDeviceStatus}
-              onChange={(e) => setNewDeviceStatus(e.target.value as "publisher" | "subscriber")}
-              className="p-2 border rounded"
-            >
-              <option value="publisher">Publisher</option>
-              <option value="subscriber">Subscriber</option>
-            </select>
-            <select
-              value={newDeviceType}
-              onChange={(e) => setNewDeviceType(e.target.value as "realtime" | "onoff")}
-              className="p-2 border rounded"
-            >
-              <option value="realtime">Realtime</option>
-              <option value="onoff">On/Off</option>
-            </select>
+      {/* ========== TAMPILKAN JSON DARI DEVICES ==========  */}
+      {devices.length > 0 && (
+        <div className="mt-6">
+          <h3 className="text-lg font-bold mb-2">Semua Data Device (JSON)</h3>
+          <pre className="bg-gray-100 p-4 rounded text-sm overflow-auto">
+            {JSON.stringify(devices, null, 2)}
+          </pre>
+        </div>
+      )}
+
+      {/* ========== MAIN CONTENT ========== */}
+      <main className="p-6">
+        {/* ========== TOMBOL TAMBAH SUBSCRIBER / PUBLISHER ========== */}
+        {!view && (
+          <div className="space-x-4 mb-4">
             <button
-              onClick={addDevice}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              onClick={() => setView("subscriber")}
             >
-              Add Device
+              Add Subscriber
+            </button>
+            <button
+              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+              onClick={() => setView("publisher")}
+            >
+              Add Publisher
             </button>
           </div>
+        )}
 
-          <div>
-            {devices.length === 0 && <p className="text-gray-600">No devices yet. Add one!</p>}
-            {devices.map((device) => (
-              <div
-                key={device.id}
-                onClick={() => setSelectedDevice(device)}
-                className={`cursor-pointer ${selectedDevice?.id === device.id ? "bg-blue-100" : "bg-white"} p-2 rounded mb-2 shadow-sm`}
+        {/* ========== PILIHAN JENIS PUBLISHER ========== */}
+        {view === "publisher" && !selectedPublisher && (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
+            {publisherOptions.map((option) => (
+              <button
+                key={option}
+                className="px-4 py-2 bg-green-400 text-white rounded hover:bg-green-600"
+                onClick={() => setSelectedPublisher(option)}
               >
-                <CardDevice
-                  id={device.id}
-                  name={device.name}
-                  status={device.status}
-                  onEdit={editDevice}
-                  onDelete={deleteDevice}
+                {option}
+              </button>
+            ))}
+            <button
+              className="px-4 py-2 border border-gray-400 rounded hover:bg-gray-200 col-span-full"
+              onClick={() => setView(null)}
+            >
+              Kembali
+            </button>
+          </div>
+        )}
+
+        {/* ========== FORM INPUT SUBSCRIBER / PUBLISHER ========== */}
+        {(view === "subscriber" || selectedPublisher) && (
+          <div className="bg-white p-4 rounded shadow mb-4 max-w-md">
+            <h2 className="text-lg font-semibold mb-2">
+              Tambah {view === "subscriber" ? "Subscriber" : selectedPublisher}
+            </h2>
+
+            {/* Input Nama & Topic */}
+            <input
+              type="text"
+              placeholder="Device Name"
+              className="mb-2 w-full p-2 border border-gray-300 rounded"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+            />
+            <input
+              type="text"
+              placeholder="Topic"
+              className="mb-2 w-full p-2 border border-gray-300 rounded"
+              value={form.topic}
+              onChange={(e) => setForm({ ...form, topic: e.target.value })}
+            />
+            {/* Input Tambahan jika Subcriber */}
+            {!selectedPublisher && (
+              <div className="mb-2">
+                <SubcriberForm
+                  selectedInputTambahan={selectedInputTambahan}
+                  handleInputChangeDropdown={handleInputChangeDropdown}
                 />
               </div>
-            ))}
-          </div>
-        </section>
+            )}
 
-        {/* Bagian utama 2 - Detail device dan konfigurasi EMQX */}
-        <section>
-          {selectedDevice ? (
-            <div className="bg-white p-6 rounded shadow">
-              <h2 className="text-2xl font-bold mb-4">{selectedDevice.name} Details</h2>
-
-              {/* Konfigurasi EMQX */}
-              <div className="mb-6">
-                <h3 className="font-semibold mb-2">MQTT Configuration</h3>
-                <pre className="bg-gray-200 p-4 rounded font-mono text-sm">
-{`Broker: mqtt://emqx-broker-address
-Client ID: client_${selectedDevice.id}
-Topic: smarthome/${selectedDevice.name.toLowerCase()}
-Status: ${selectedDevice.status}
-Type: ${selectedDevice.type}`}
-                </pre>
+            {/* Input Tambahan jika Button */}
+            {selectedPublisher === "Button" && (
+              <div className="mb-2">
+                <ButtonForm
+                  selectedInputTambahan={selectedInputTambahan}
+                  handleInputChange={handleInputChange}
+                />
               </div>
+            )}
 
-              {/* Data device */}
-              <div>
-                {selectedDevice.type === "realtime" ? (
-                  <>
-                    <h3 className="font-semibold mb-2">Realtime Data (Last 10)</h3>
-                    <ul className="list-disc list-inside max-h-40 overflow-y-auto border p-2 rounded bg-gray-50">
-                      {selectedDevice.history.length === 0 && <li>No data yet</li>}
-                      {selectedDevice.history.map((h, i) => (
-                        <li key={i}>{h.timestamp}: {h.value}</li>
-                      ))}
-                    </ul>
-                    {/* Bisa ditambahkan grafik (Chart.js / Recharts / dll) jika ingin lebih kompleks */}
-                  </>
-                ) : (
-                  <>
-                    <h3 className="font-semibold mb-2">On/Off Status History</h3>
-                    <ul className="list-disc list-inside max-h-40 overflow-y-auto border p-2 rounded bg-gray-50">
-                      {selectedDevice.history.length === 0 && <li>No status changes yet</li>}
-                      {selectedDevice.history.map((h, i) => (
-                        <li key={i}>{h.timestamp}: {h.value ? "ON" : "OFF"}</li>
-                      ))}
-                    </ul>
-                  </>
-                )}
+            {/* Input Tambahan jika Switch */}
+            {selectedPublisher === "Switch" && (
+              <div className="mb-2">
+                <SwitchForm
+                  selectedInputTambahan={selectedInputTambahan}
+                  handleInputChange={handleInputChange}
+                />
+              </div>
+            )}
+
+            {/* Input Tambahan jika SeekBar */}
+            {selectedPublisher === "SeekBar" && (
+              <div className="mb-2">
+                <SeekBarForm
+                  selectedInputTambahan={selectedInputTambahan}
+                  handleInputChange={handleInputChange}
+                />
+              </div>
+            )}
+
+            {/* Input Tambahan jika ComboBox */}
+            {selectedPublisher === "Combo Box" && (
+              <div className="mb-2">
+                <ComboBoxForm
+                  selectedInputTambahan={selectedInputTambahan}
+                  // handleInputChange={handleInputChange}
+                  handleAddItem={handleAddItem}
+                  handleDeleteItem={handleDeleteItem}
+                />
+              </div>
+            )}
+
+            {/* Input Tambahan jika Color Picker */}
+            {selectedPublisher === "Color Picker" && (
+              <div className="mb-2">
+                <ColorPickerForm
+                  selectedInputTambahan={selectedInputTambahan}
+                  handleInputChange={handleInputChange}
+                />
+              </div>
+            )}
+            {/* Input Tambahan jika Multi Button  */}
+            {selectedPublisher === "Multi Button" && (
+              <div className="mb-2">
+                <MultiButtonForm
+                  selectedInputTambahan={selectedInputTambahan}
+                  // handleInputChange={handleInputChange}
+                  handleAddItem={handleAddItem}
+                  handleDeleteItem={handleDeleteItem}
+                />
+              </div>
+            )}
+            {/* Input Tambahan jika Time Picker  */}
+            {selectedPublisher === "Time Picker" && (
+              <div className="mb-2">
+                <TimePickerForm
+                  selectedInputTambahan={selectedInputTambahan}
+                  handleInputChange={handleInputChange}
+                />
+              </div>
+            )}
+
+            {/* Tombol Aksi Simpan & Kembali */}
+            <div className="flex space-x-2">
+              <button
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                onClick={() => {
+                  if (!form.name.trim() || !form.topic.trim()) {
+                    alert("Tidak boleh ada yang kosong!!");
+                    return;
+                  }
+                  handleSave();
+                }}
+              >
+                Save
+              </button>
+              <button
+                className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-200"
+                onClick={() => {
+                  setSelectedPublisher(null);
+                  setView(null);
+                }}
+              >
+                Kembali
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ========== LIST DEVICE YANG TELAH DITAMBAHKAN ========== */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {devices.map((device) => (
+            <div
+              key={device.id}
+              className="bg-white rounded-2xl shadow p-4 hover:shadow-lg"
+            >
+              {/* Jika subcriber */}
+              {device.type === "subscriber" && (
+                <SubcriberCard device={device} setDetail={setDetail} />
+              )}
+              {/* Jika Text*/}
+              {device.type === "publisher" && device.category === "Text" && (
+                <PublisherTextCard device={device} setDetail={setDetail} />
+              )}
+              {/* Jika Button*/}
+              {device.type === "publisher" && device.category === "Button" && (
+                <PublisherButtonCard device={device} setDetail={setDetail} />
+              )}
+              {/* Jika Switch*/}
+              {device.type === "publisher" && device.category === "Switch" && (
+                <PublisherSwitchCard device={device} setDetail={setDetail} />
+              )}
+              {/* Jika SeekBar*/}
+              {device.type === "publisher" && device.category === "Seek Bar" && (
+                <PublisherSeekBarCard device={device} setDetail={setDetail} />
+              )}
+              {/* Jika ComboBox*/}
+              {device.type === "publisher" && device.category === "Combo Box" && (
+                <PublisherComboBoxCard device={device} setDetail={setDetail} />
+              )}
+              {/* Jika Color Picker */}
+              {device.type === "publisher" && device.category === "Color Picker" && (
+                <PublisherColorPickerCard device={device} setDetail={setDetail} />
+              )}
+              {/* Jika Multi Button */}
+              {device.type === "publisher" && device.category === "Multi Button" && (
+                <PublisherMultiButtonCard device={device} setDetail={setDetail} />
+              )}
+              {/* Jika Time Picker */}
+              {device.type === "publisher" && device.category === "Time Picker" && (
+                <PublisherTimePickerCard device={device} setDetail={setDetail} />
+              )}
+              {/* Jika Light */}
+              {device.type === "publisher" && device.category === "Light" && (
+                <PublisherLightCard device={device} setDetail={setDetail} />
+              )}
+              {/* Jika Fan */}
+              {device.type === "publisher" && device.category === "Fan" && (
+                <PublisherLightCard device={device} setDetail={setDetail} />
+              )}
+              {/* Jika Motor */}
+              {device.type === "publisher" && device.category === "Motor" && (
+                <PublisherMotorCard device={device} setDetail={setDetail} />
+              )}
+
+              {/* Tombol Edit dan Hapus */}
+              <div className="mt-2 flex space-x-2">
+                <button
+                  className="text-sm px-3 py-1 bg-yellow-400 text-white rounded hover:bg-yellow-500"
+                  onClick={() => {
+                    setForm({ name: device.name, topic: device.topic });
+                    setView(device.type);
+
+                    if (device.type === "publisher") {
+                      setSelectedPublisher(device.category || null);
+                    }
+                    setDetail(null);
+                    // Hapus dulu device lama dari list sebelum edit (akan ditambahkan ulang saat save)
+                    setDevices(devices.filter((d) => d.id !== device.id));
+                  }}
+                >
+                  Edit
+                </button>
+                <button
+                  className="text-sm px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                  onClick={() => {
+                    setDevices(devices.filter((d) => d.id !== device.id));
+                    if (detail?.id === device.id) setDetail(null);
+                  }}
+                >
+                  Hapus
+                </button>
               </div>
             </div>
-          ) : (
-            <p className="text-gray-500">Select a device to see details and configuration.</p>
-          )}
-        </section>
+          ))}
+        </div>
+
+        {/* ========== DETAIL DEVICE SAAT DIPILIH ========== */}
+        {detail && (
+          <div className="mt-6 bg-white p-6 rounded shadow border-t-4 border-blue-500">
+            <h3 className="text-xl font-bold mb-2">Detail Device</h3>
+            <p>
+              <strong>Name:</strong> {detail.name}
+            </p>
+            <p>
+              <strong>Topic:</strong> {detail.topic}
+            </p>
+            <p>
+              <strong>Type:</strong> {detail.type}
+            </p>
+            <p>
+              <strong>Category:</strong> {detail.category}
+            </p>
+            <p>
+              <strong>Additional Inputs:</strong>{" "}
+              {detail.inputtambahan?.join(", ")}
+            </p>
+            <button
+              className="mt-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+              onClick={() => setDetail(null)}
+            >
+              Close
+            </button>
+          </div>
+        )}
       </main>
-    </>
+    </div>
   );
 }

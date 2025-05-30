@@ -1,20 +1,27 @@
-# Development base
+# Base image
 FROM node:18-alpine
 
-# Set working dir
+# Set working directory
 WORKDIR /app
 
 # Copy package files
 COPY package.json package-lock.json* ./
 
-# Install dependencies (pastikan bcryptjs ikut masuk)
+# Install dependencies
 RUN npm install
 
-# Copy semua file proyek
+# Copy Prisma schema and env early to ensure npx prisma generate works
+COPY prisma ./prisma
+COPY .env .env
+
+# Generate Prisma Client
+RUN npx prisma generate --schema=./prisma/schema.prisma
+
+# Copy all other project files
 COPY . .
 
 # Expose port
 EXPOSE 3000
 
-# Jalankan dev server
+# Start development server
 CMD ["npm", "run", "dev"]
