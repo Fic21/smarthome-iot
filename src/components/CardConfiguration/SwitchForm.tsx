@@ -21,22 +21,22 @@ export default function SwitchForm({
     <input
     type="text"
     className="mb-2 w-full p-2 border border-gray-300 rounded"
-    value={selectedInputTambahan[0] || ""}
-    onChange={(e) => handleInputChange(0, e.target.value)}
+    value={selectedInputTambahan[1] || ""}
+    onChange={(e) => handleInputChange(1, e.target.value)}
     placeholder="Enter button text for OFF"
   />
     <input
     type="text"
     className="mb-2 w-full p-2 border border-gray-300 rounded"
-    value={selectedInputTambahan[0] || ""}
-    onChange={(e) => handleInputChange(0, e.target.value)}
+    value={selectedInputTambahan[2] || ""}
+    onChange={(e) => handleInputChange(2, e.target.value)}
     placeholder="Enter value text for ON"
   />
     <input
     type="text"
     className="mb-2 w-full p-2 border border-gray-300 rounded"
-    value={selectedInputTambahan[0] || ""}
-    onChange={(e) => handleInputChange(0, e.target.value)}
+    value={selectedInputTambahan[3] || ""}
+    onChange={(e) => handleInputChange(3, e.target.value)}
     placeholder="Enter value text for OFFi"
   />
 

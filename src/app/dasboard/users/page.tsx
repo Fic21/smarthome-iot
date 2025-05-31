@@ -26,6 +26,7 @@ import PublisherMultiButtonCard from "@/componentsCardInterface/PublisherMultiBu
 import PublisherTimePickerCard from "@/componentsCardInterface/PublisherTimePickerCard";
 import PublisherLightCard from "@/componentsCardInterface/PublisherLightCard";
 import PublisherMotorCard from "@/componentsCardInterface/PublisherMotorCard";
+import { Pencil, Trash2 } from "lucide-react";
 // ======================
 // MAIN DASHBOARD COMPONENT
 // ======================
@@ -242,48 +243,66 @@ export default function Dashboard() {
         )}
 
         {/* ========== LIST DEVICE YANG TELAH DITAMBAHKAN ========== */}
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {devices.map((device) => (
             <div
               key={device.id}
-              className="bg-white rounded-2xl shadow p-4 hover:shadow-lg"
+              className="bg-white rounded-2xl shadow p-4 pt-8 hover:shadow-lg relative"
             >
-              {/* Jika subcriber */}
+              {/* Jika subscriber */}
               {device.type === "subscriber" && (
                 <SubcriberCard device={device} setDetail={setDetail} />
               )}
-              {/* Jika Text*/}
+              {/* Jika Text */}
               {device.type === "publisher" && device.category === "Text" && (
                 <PublisherTextCard device={device} setDetail={setDetail} />
               )}
-              {/* Jika Button*/}
+              {/* Jika Button */}
               {device.type === "publisher" && device.category === "Button" && (
                 <PublisherButtonCard device={device} setDetail={setDetail} />
               )}
-              {/* Jika Switch*/}
+              {/* Jika Switch */}
               {device.type === "publisher" && device.category === "Switch" && (
                 <PublisherSwitchCard device={device} setDetail={setDetail} />
               )}
-              {/* Jika SeekBar*/}
-              {device.type === "publisher" && device.category === "Seek Bar" && (
-                <PublisherSeekBarCard device={device} setDetail={setDetail} />
-              )}
-              {/* Jika ComboBox*/}
-              {device.type === "publisher" && device.category === "Combo Box" && (
-                <PublisherComboBoxCard device={device} setDetail={setDetail} />
-              )}
+              {/* Jika SeekBar */}
+              {device.type === "publisher" &&
+                device.category === "Seek Bar" && (
+                  <PublisherSeekBarCard device={device} setDetail={setDetail} />
+                )}
+              {/* Jika ComboBox */}
+              {device.type === "publisher" &&
+                device.category === "Combo Box" && (
+                  <PublisherComboBoxCard
+                    device={device}
+                    setDetail={setDetail}
+                  />
+                )}
               {/* Jika Color Picker */}
-              {device.type === "publisher" && device.category === "Color Picker" && (
-                <PublisherColorPickerCard device={device} setDetail={setDetail} />
-              )}
+              {device.type === "publisher" &&
+                device.category === "Color Picker" && (
+                  <PublisherColorPickerCard
+                    device={device}
+                    setDetail={setDetail}
+                  />
+                )}
               {/* Jika Multi Button */}
-              {device.type === "publisher" && device.category === "Multi Button" && (
-                <PublisherMultiButtonCard device={device} setDetail={setDetail} />
-              )}
+              {device.type === "publisher" &&
+                device.category === "Multi Button" && (
+                  <PublisherMultiButtonCard
+                    device={device}
+                    setDetail={setDetail}
+                  />
+                )}
               {/* Jika Time Picker */}
-              {device.type === "publisher" && device.category === "Time Picker" && (
-                <PublisherTimePickerCard device={device} setDetail={setDetail} />
-              )}
+              {device.type === "publisher" &&
+                device.category === "Time Picker" && (
+                  <PublisherTimePickerCard
+                    device={device}
+                    setDetail={setDetail}
+                  />
+                )}
               {/* Jika Light */}
               {device.type === "publisher" && device.category === "Light" && (
                 <PublisherLightCard device={device} setDetail={setDetail} />
@@ -298,31 +317,29 @@ export default function Dashboard() {
               )}
 
               {/* Tombol Edit dan Hapus */}
-              <div className="mt-2 flex space-x-2">
+              <div className="absolute top-2 right-4 flex space-x-2">
                 <button
-                  className="text-sm px-3 py-1 bg-yellow-400 text-white rounded hover:bg-yellow-500"
+                  className="text-gray-500 hover:text-yellow-500"
                   onClick={() => {
                     setForm({ name: device.name, topic: device.topic });
                     setView(device.type);
-
                     if (device.type === "publisher") {
                       setSelectedPublisher(device.category || null);
                     }
                     setDetail(null);
-                    // Hapus dulu device lama dari list sebelum edit (akan ditambahkan ulang saat save)
                     setDevices(devices.filter((d) => d.id !== device.id));
                   }}
                 >
-                  Edit
+                  <Pencil size={20} />
                 </button>
                 <button
-                  className="text-sm px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                  className="text-gray-500 hover:text-red-500"
                   onClick={() => {
                     setDevices(devices.filter((d) => d.id !== device.id));
                     if (detail?.id === device.id) setDetail(null);
                   }}
                 >
-                  Hapus
+                  <Trash2 size={20} />
                 </button>
               </div>
             </div>
