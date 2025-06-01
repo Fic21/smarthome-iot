@@ -1,14 +1,20 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 export default function Navbar() {
   const [showMenu, setShowMenu] = useState(false);
+  const router = useRouter();
 
-  function handleLogout() {
-    if (confirm("Are you sure you want to logout?")) {
-      // TODO: Implement logout logic
-      alert("Logged out");
+  async function handleLogout() {
+    try {
+      const res = await fetch("/api/auth/logout", { method: "POST" });
+      if (!res.ok) throw new Error("Logout gagal");
+
+      router.push("/login"); // redirect setelah logout
+    } catch (error) {
+      alert("Logout gagal, coba lagi");
     }
   }
 
@@ -16,7 +22,10 @@ export default function Navbar() {
     <nav className="bg-gray-800 text-white flex justify-between items-center p-4">
       <div className="text-lg font-bold">SmartHome IoT Dashboard</div>
       <div className="relative">
-        <button onClick={() => setShowMenu(!showMenu)} className="focus:outline-none">
+        <button
+          onClick={() => setShowMenu(!showMenu)}
+          className="focus:outline-none"
+        >
           ☰
         </button>
         {showMenu && (

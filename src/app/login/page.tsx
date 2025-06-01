@@ -5,7 +5,6 @@ import { useState } from 'react';
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -18,6 +17,7 @@ export default function LoginPage() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin', // penting agar cookie diikutkan
         body: JSON.stringify({ email, password }),
       });
 
@@ -27,8 +27,7 @@ export default function LoginPage() {
         setMessage(data.error || 'Login failed');
       } else {
         setMessage(`Welcome, ${data.user.name}`);
-        // Bisa redirect di sini: window.location.href = '/dashboard';
-        window.location.href = '/dasboard/users'
+        window.location.href = '/dasboard/users'; // pakai folder sesuai milikmu
       }
     } catch (err) {
       setMessage('Failed to connect to server');
@@ -48,12 +47,10 @@ export default function LoginPage() {
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2
-                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="you@example.com"
           />
         </label>
-
         <label className="block">
           <span className="text-gray-700 font-semibold">Password</span>
           <input
@@ -61,12 +58,10 @@ export default function LoginPage() {
             value={password}
             onChange={e => setPassword(e.target.value)}
             required
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2
-                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Enter your password"
           />
         </label>
-
         <button
           type="submit"
           disabled={loading}
@@ -76,7 +71,6 @@ export default function LoginPage() {
           {loading ? 'Logging in...' : 'Login'}
         </button>
       </form>
-
       {message && (
         <p
           className={`mt-6 text-center font-medium ${
