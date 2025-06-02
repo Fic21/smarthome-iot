@@ -268,7 +268,7 @@ export default function Dashboard() {
               )}
               {/* Jika SeekBar */}
               {device.type === "publisher" &&
-                device.category === "Seek Bar" && (
+                device.category === "SeekBar" && (
                   <PublisherSeekBarCard device={device} setDetail={setDetail} />
                 )}
               {/* Jika ComboBox */}

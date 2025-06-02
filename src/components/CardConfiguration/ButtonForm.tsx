@@ -11,14 +11,13 @@ export default function ButtonForm({
 }: ButtonFormProps) {
   return (
     <div className="mb-2">
-        <input
-    type="text"
-    className="mb-2 w-full p-2 border border-gray-300 rounded"
-    value={selectedInputTambahan[0] || ""}
-    onChange={(e) => handleInputChange(0, e.target.value)}
-    placeholder="Enter Button Value"
-  />
-
+      <input
+        type="text"
+        className="mb-2 w-full p-2 border border-gray-300 rounded"
+        value={selectedInputTambahan[0] || ""}
+        onChange={(e) => handleInputChange(0, e.target.value)}
+        placeholder="Enter Button Value"
+      />
     </div>
   );
 }

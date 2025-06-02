@@ -1,7 +1,7 @@
-export default function PublisherMultiButtonCard({ device,setDetail }) {
+export default function PublisherMultiButtonCard({ device, setDetail }) {
   return (
     <div
-      className="bg-blue-50 border border-blue-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer"
+      className="bg-blue-50 border border-blue-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer max-w-sm"
       onClick={() => setDetail(device)}
     >
       <div className="mb-2">
@@ -16,8 +16,24 @@ export default function PublisherMultiButtonCard({ device,setDetail }) {
 
       {device.inputtambahan?.length > 0 && (
         <div className="mb-2">
-          <div className="text-xs text-gray-600 font-medium">Input Tambahan</div>
-          <div className="text-xs text-gray-500 italic">{device.inputtambahan.join(", ")}</div>
+          <div className="text-xs text-gray-600 font-medium mb-1">Input Tambahan</div>
+          <div
+            className="max-h-32 overflow-y-auto border border-gray-300 rounded p-2 space-y-2 bg-white"
+            onClick={e => e.stopPropagation()}
+          >
+            {device.inputtambahan.map((input, index) => (
+              <button
+                key={index}
+                className="w-full text-center px-3 py-2 bg-blue-200 text-blue-900 rounded hover:bg-blue-300 active:bg-blue-400 focus:outline-none transition-colors duration-150"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  alert(`Button clicked: ${input}`);
+                }}
+              >
+                {input}
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>

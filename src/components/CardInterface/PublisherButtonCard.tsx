@@ -31,6 +31,16 @@ export default function PublisherButtonCard({ device, setDetail }) {
         <div className="text-sm text-blue-600 break-all">{device.topic}</div>
       </div>
 
+      {/* INPUT TAMBAHAN */}
+      {device.inputtambahan?.length > 0 && (
+        <div className="mb-2">
+          <div className="text-xs text-gray-600 font-medium">QoS</div>
+          <div className="text-xs text-gray-500 italic">
+            {device.inputtambahan.join(", ")}
+          </div>
+        </div>
+      )}
+
       {/* DATA */}
       <div className="mt-2">
         <div className="text-xs text-gray-600 font-medium">Data Terakhir</div>
