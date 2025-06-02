@@ -1,99 +1,47 @@
-// useDeviceManager.ts
 import { useState } from "react";
-
-export interface Device {
-  id: number;
-  name: string;
-  topic: string;
-  type: "subscriber" | "publisher";
-  category?: string;
-  inputtambahan?: string[];
-}
+import { useDeviceForm } from "./useDeviceForm";
+import { useDeviceList } from "./useDeviceList";
+import { useDeviceView } from "./useDeviceView";
+import { publisherOptions } from "./publisherOptions";
 
 export function useDeviceManager() {
-  const [view, setView] = useState<"subscriber" | "publisher" | null>(null);
-  const [devices, setDevices] = useState<Device[]>([]);
-  const [form, setForm] = useState({ name: "", topic: "" });
-  const [detail, setDetail] = useState<Device | null>(null);
-  const [selectedPublisher, setSelectedPublisher] = useState<string | null>(
-    null
-  );
-  const [selectedInputTambahan, setSelectedInputTambahan] = useState<string[]>(
-    []
-  );
+  // Hook kecil diimport dan dipanggil di sini
+  const deviceForm = useDeviceForm();
+  const deviceList = useDeviceList();
+  const deviceView = useDeviceView();
+  const [selectedPublisher, setSelectedPublisher] = useState<string | null>(null);
 
-  const publisherOptions = [
-    "Text",
-    "Button",
-    "Switch",
-    "SeekBar",
-    "Combo Box",
-    "Color Picker",
-    "Multi Button",
-    "Time Picker",
-    "Light",
-    "Fan",
-    "Motor",
-  ];
-
+  // Fungsi handleSave gabungkan state dari semua hook kecil
   const handleSave = () => {
-    const newDevice: Device = {
+    if (!deviceView.view) return;
+    if (!deviceForm.form.topic.trim()) return;
+
+    const newDevice = {
       id: Date.now(),
-      name: form.name || selectedPublisher || "Publisher",
-      topic: form.topic,
-      type: view!,
+      name: deviceForm.form.name || selectedPublisher || "Publisher",
+      topic: deviceForm.form.topic,
+      type: deviceView.view,
       category: selectedPublisher || undefined,
-      inputtambahan: selectedInputTambahan,
+      inputtambahan: deviceForm.selectedInputTambahan.length > 0 ? deviceForm.selectedInputTambahan : undefined,
     };
-    setDevices([...devices, newDevice]);
-    setForm({ name: "", topic: "" });
+
+    deviceList.addDevice(newDevice);
+
+    // Reset semua form dan state terkait
+    deviceForm.setForm({ name: "", topic: "" });
     setSelectedPublisher(null);
-    setView(null);
-    setSelectedInputTambahan([]);
+    deviceView.setView(null);
+    deviceForm.setSelectedInputTambahan([]);
   };
 
-  const handleInputChange = (index: number, value: string) => {
-    const newInput = [...selectedInputTambahan];
-    newInput[index] = value;
-    setSelectedInputTambahan(newInput);
-  };
-
-  // Fungsi untuk menambah item baru ke selectedInputTambahan
-
-  const handleAddItem = (value: string) => {
-    setSelectedInputTambahan((prev) => [...prev, value]);
-  };
-
-  // Fungsi untuk menghapus item berdasarkan index dari selectedInputTambahan
-  const handleDeleteItem = (index: number) => {
-    setSelectedInputTambahan((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  //untuk drop down
-  const handleInputChangeDropdown = (value: string) => {
-  const updated = [...selectedInputTambahan];
-  updated[0] = value;
-  setSelectedInputTambahan(updated);
-};
-
+  // Return gabungan semua state dan fungsi dari hook-hook kecil
   return {
-    view,
-    setView,
-    devices,
-    setDevices,
-    form,
-    setForm,
-    detail,
-    setDetail,
+    ...deviceForm,
+    ...deviceList,
+    ...deviceView,
     selectedPublisher,
     setSelectedPublisher,
-    selectedInputTambahan,
-    setSelectedInputTambahan,
     publisherOptions,
     handleSave,
-    handleInputChange,
-    handleAddItem,
-    handleDeleteItem,
-    handleInputChangeDropdown,
   };
 }
