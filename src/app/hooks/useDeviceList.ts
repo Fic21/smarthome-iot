@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Device } from "./types";
+import { Device } from "@/typesuser";
 
 export function useDeviceList() {
   const [devices, setDevices] = useState<Device[]>([]);

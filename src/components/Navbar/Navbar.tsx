@@ -1,11 +1,22 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export default function Navbar() {
   const [showMenu, setShowMenu] = useState(false);
   const router = useRouter();
+
+  // Tambahkan state untuk userId dan userName
+  // const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [currentUserName, setCurrentUserName] = useState<string | null>(null);
+
+  useEffect(() => {
+    // const id = localStorage.getItem("currentUserId");
+    const name = localStorage.getItem("currentUserName");
+    // setCurrentUserId(id);
+    setCurrentUserName(name);
+  }, []);
 
   async function handleLogout() {
     try {
@@ -21,6 +32,7 @@ export default function Navbar() {
   return (
     <nav className="bg-gray-800 text-white flex justify-between items-center p-4">
       <div className="text-lg font-bold">SmartHome IoT Dashboard</div>
+      
       <div className="relative">
         <button
           onClick={() => setShowMenu(!showMenu)}
@@ -30,6 +42,7 @@ export default function Navbar() {
         </button>
         {showMenu && (
           <div className="absolute right-0 mt-2 bg-white text-black rounded shadow-lg w-48">
+            <div className="font-bold shadow-lg flex justify-center text-3xl">{currentUserName}</div>
             <button
               onClick={() => alert("Change Password - TODO")}
               className="block px-4 py-2 hover:bg-gray-200 w-full text-left"

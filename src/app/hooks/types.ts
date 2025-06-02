@@ -1,5 +1,6 @@
 export interface Device {
-  id: number;
+  userId:number;
+  deviceId: string;
   name: string;
   topic: string;
   type: "subscriber" | "publisher";

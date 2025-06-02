@@ -26,6 +26,9 @@ export default function LoginPage() {
       if (!res.ok) {
         setMessage(data.error || 'Login failed');
       } else {
+        // jika berhasil login maka localstorage,message,direct to dasboard user
+        localStorage.setItem('currentUserId',data.user.id);
+        localStorage.setItem('currentUserName',data.user.name);
         setMessage(`Welcome, ${data.user.name}`);
         window.location.href = '/dasboard/users'; // pakai folder sesuai milikmu
       }
