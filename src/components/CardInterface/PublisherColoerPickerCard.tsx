@@ -12,7 +12,7 @@ export default function PublisherColorPickerCard({ device, setDetail }) {
   const handleSendColor = (e) => {
     e.stopPropagation(); // agar tidak trigger setDetail saat klik tombol
 
-    let format = device.inputtambahan?.[1] ?? "hex"; // default hex
+    const format = device.inputtambahan?.[1] ?? "hex"; // default hex
     let colorToSend = selectedColor;
 
     if (format.toLowerCase() === "rgb") {

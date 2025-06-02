@@ -67,15 +67,15 @@ export default function Dashboard() {
       {/* ========== NAVBAR ========== */}
       <Navbar />
 
-       {/* ========== TAMPILKAN JSON DARI DEVICES ==========  */}
-      {devices.length > 0 && (
+      {/* ========== TAMPILKAN JSON DARI DEVICES ==========  */}
+      {/* {devices.length > 0 && (
         <div className="mt-6">
           <h3 className="text-lg font-bold mb-2">Semua Data Device (JSON)</h3>
           <pre className="bg-gray-100 p-4 rounded text-sm overflow-auto">
             {JSON.stringify(devices, null, 2)}
           </pre>
         </div>
-      )} 
+      )}  */}
 
       {/* ========== MAIN CONTENT ========== */}
       <main className="p-6">
@@ -252,116 +252,137 @@ export default function Dashboard() {
         {/* ========== LIST DEVICE YANG TELAH DITAMBAHKAN ========== */}
         {devices && devices.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {devices.map((device) => (
-              <div
-                key={device.id}
-                className="bg-white rounded-2xl shadow p-4 pt-8 hover:shadow-lg relative"
-              >
-                {/* Jika subscriber */}
-                {device.type === "subscriber" && (
-                  <SubcriberCard device={device} setDetail={setDetail} />
-                )}
-                {/* Jika Text */}
-                {device.type === "publisher" && device.category === "Text" && (
-                  <PublisherTextCard device={device} setDetail={setDetail} />
-                )}
-                {/* Jika Button */}
-                {device.type === "publisher" &&
-                  device.category === "Button" && (
-                    <PublisherButtonCard
-                      device={device}
-                      setDetail={setDetail}
-                    />
-                  )}
-                {/* Jika Switch */}
-                {device.type === "publisher" &&
-                  device.category === "Switch" && (
-                    <PublisherSwitchCard
-                      device={device}
-                      setDetail={setDetail}
-                    />
-                  )}
-                {/* Jika SeekBar */}
-                {device.type === "publisher" &&
-                  device.category === "SeekBar" && (
-                    <PublisherSeekBarCard
-                      device={device}
-                      setDetail={setDetail}
-                    />
-                  )}
-                {/* Jika ComboBox */}
-                {device.type === "publisher" &&
-                  device.category === "Combo Box" && (
-                    <PublisherComboBoxCard
-                      device={device}
-                      setDetail={setDetail}
-                    />
-                  )}
-                {/* Jika Color Picker */}
-                {device.type === "publisher" &&
-                  device.category === "Color Picker" && (
-                    <PublisherColorPickerCard
-                      device={device}
-                      setDetail={setDetail}
-                    />
-                  )}
-                {/* Jika Multi Button */}
-                {device.type === "publisher" &&
-                  device.category === "Multi Button" && (
-                    <PublisherMultiButtonCard
-                      device={device}
-                      setDetail={setDetail}
-                    />
-                  )}
-                {/* Jika Time Picker */}
-                {device.type === "publisher" &&
-                  device.category === "Time Picker" && (
-                    <PublisherTimePickerCard
-                      device={device}
-                      setDetail={setDetail}
-                    />
-                  )}
-                {/* Jika Light */}
-                {device.type === "publisher" && device.category === "Light" && (
-                  <PublisherLightCard device={device} setDetail={setDetail} />
-                )}
-                {/* Jika Fan */}
-                {device.type === "publisher" && device.category === "Fan" && (
-                  <PublisherFanCard device={device} setDetail={setDetail} />
-                )}
-                {/* Jika Motor */}
-                {device.type === "publisher" && device.category === "Motor" && (
-                  <PublisherMotorCard device={device} setDetail={setDetail} />
-                )}
+            
+            {/* filter sesuai currentUserId */}
+            {devices
+              .filter((device) => {
+                const currentUserId = localStorage.getItem("currentUserId");
+                return device.userId === currentUserId;
+              })
 
-                {/* Tombol Edit dan Hapus */}
-                <div className="absolute top-2 right-4 flex space-x-2">
-                  <button
-                    className="text-gray-500 hover:text-yellow-500"
-                    onClick={() => {
-                      setForm({ name: device.name, topic: device.topic });
-                      setView(device.type);
-                      if (device.type === "publisher") {
-                        setSelectedPublisher(device.category || null);
-                      }
-                      setDetail(null);
-                      // setDevices(devices.filter((d) => d.id !== device.id));
-                    }}
-                  >
-                    <Pencil size={20} />
-                  </button>
-                  <button
-                    className="text-gray-500 hover:text-red-500"
-                    onClick={() => {
-                      setDevices(devices.filter((d) => d.id !== device.id));
-                      if (detail?.id === device.id) setDetail(null);
-                    }}
-                  >
-                    <Trash2 size={20} />
-                  </button>
+              // di map semua hasil return device.userID 
+              .map((device) => (
+                <div
+                  key={device.id}
+                  className="bg-white rounded-2xl shadow p-4 pt-8 hover:shadow-lg relative"
+                >
+                  {/* Jika subscriber */}
+                  {device.type === "subscriber" && (
+                    <SubcriberCard device={device} setDetail={setDetail} />
+                  )}
+                  {/* Jika Text */}
+                  {device.type === "publisher" &&
+                    device.category === "Text" && (
+                      <PublisherTextCard
+                        device={device}
+                        setDetail={setDetail}
+                      />
+                    )}
+                  {/* Jika Button */}
+                  {device.type === "publisher" &&
+                    device.category === "Button" && (
+                      <PublisherButtonCard
+                        device={device}
+                        setDetail={setDetail}
+                      />
+                    )}
+                  {/* Jika Switch */}
+                  {device.type === "publisher" &&
+                    device.category === "Switch" && (
+                      <PublisherSwitchCard
+                        device={device}
+                        setDetail={setDetail}
+                      />
+                    )}
+                  {/* Jika SeekBar */}
+                  {device.type === "publisher" &&
+                    device.category === "SeekBar" && (
+                      <PublisherSeekBarCard
+                        device={device}
+                        setDetail={setDetail}
+                      />
+                    )}
+                  {/* Jika ComboBox */}
+                  {device.type === "publisher" &&
+                    device.category === "Combo Box" && (
+                      <PublisherComboBoxCard
+                        device={device}
+                        setDetail={setDetail}
+                      />
+                    )}
+                  {/* Jika Color Picker */}
+                  {device.type === "publisher" &&
+                    device.category === "Color Picker" && (
+                      <PublisherColorPickerCard
+                        device={device}
+                        setDetail={setDetail}
+                      />
+                    )}
+                  {/* Jika Multi Button */}
+                  {device.type === "publisher" &&
+                    device.category === "Multi Button" && (
+                      <PublisherMultiButtonCard
+                        device={device}
+                        setDetail={setDetail}
+                      />
+                    )}
+                  {/* Jika Time Picker */}
+                  {device.type === "publisher" &&
+                    device.category === "Time Picker" && (
+                      <PublisherTimePickerCard
+                        device={device}
+                        setDetail={setDetail}
+                      />
+                    )}
+                  {/* Jika Light */}
+                  {device.type === "publisher" &&
+                    device.category === "Light" && (
+                      <PublisherLightCard
+                        device={device}
+                        setDetail={setDetail}
+                      />
+                    )}
+                  {/* Jika Fan */}
+                  {device.type === "publisher" && device.category === "Fan" && (
+                    <PublisherFanCard device={device} setDetail={setDetail} />
+                  )}
+                  {/* Jika Motor */}
+                  {device.type === "publisher" &&
+                    device.category === "Motor" && (
+                      <PublisherMotorCard
+                        device={device}
+                        setDetail={setDetail}
+                      />
+                    )}
+
+                  {/* Tombol Edit dan Hapus */}
+                  <div className="absolute top-2 right-4 flex space-x-2">
+                    <button
+                      className="text-gray-500 hover:text-yellow-500"
+                      onClick={() => {
+                        setForm({ name: device.name, topic: device.topic });
+                        setView(device.type);
+                        if (device.type === "publisher") {
+                          setSelectedPublisher(device.category || null);
+                        }
+                        setDetail(null);
+                        // setDevices(devices.filter((d) => d.id !== device.id));
+                      }}
+                    >
+                      <Pencil size={20} />
+                    </button>
+                    <button
+                      className="text-gray-500 hover:text-red-500"
+                      onClick={() => {
+                        setDevices(devices.filter((d) => d.id !== device.id));
+                        if (detail?.id === device.id) setDetail(null);
+                      }}
+                    >
+                      <Trash2 size={20} />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         )}
 
