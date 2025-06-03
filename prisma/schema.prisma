@@ -12,5 +12,36 @@ model User {
   email    String   @unique
   name     String
   password String
-  createAt DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  devices DeviceConfiguration[] // relasi one-to-many ke device
+}
+
+model DeviceConfiguration {
+  deviceId      String   @id // deviceId adalah primary key
+  name          String
+  topic         String
+  type          String
+  inputtambahan Json?
+  userId        Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  mqttBrokerUrl   String?
+  mqttBrokerPort  Int?
+  mqttToken       String?
+  mqttTokenExpiry DateTime?
+
+  user User        @relation(fields: [userId], references: [id])
+  logs DeviceLog[]
+}
+
+model DeviceLog {
+  id        Int      @id @default(autoincrement())
+  deviceId  String
+  timestamp DateTime @default(now())
+  logData   Json
+  createdAt DateTime @default(now())
+
+  device DeviceConfiguration @relation(fields: [deviceId], references: [deviceId])
 }

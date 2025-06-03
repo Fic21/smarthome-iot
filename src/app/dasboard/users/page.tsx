@@ -70,14 +70,14 @@ export default function Dashboard() {
       <Navbar />
 
       {/* ========== TAMPILKAN JSON DARI DEVICES ==========  */}
-      {/* {devices.length > 0 && (
+      {devices.length > 0 && (
         <div className="mt-6">
           <h3 className="text-lg font-bold mb-2">Semua Data Device (JSON)</h3>
           <pre className="bg-gray-100 p-4 rounded text-sm overflow-auto">
             {JSON.stringify(devices, null, 2)}
           </pre>
         </div>
-      )}  */}
+      )} 
 
       {/* ========== MAIN CONTENT ========== */}
       <main className="p-6">
