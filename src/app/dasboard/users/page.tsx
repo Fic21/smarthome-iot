@@ -35,7 +35,7 @@ export default function Dashboard() {
     view,
     setView,
     devices,
-    setDevices,
+    // setDevices,
     form,
     setForm,
     detail,
@@ -45,6 +45,8 @@ export default function Dashboard() {
     selectedInputTambahan,
     publisherOptions,
     handleSave,
+    handleEdit,
+    handleDelete,
     handleInputChange,
     handleAddItem,
     handleDeleteItem,
@@ -252,7 +254,6 @@ export default function Dashboard() {
         {/* ========== LIST DEVICE YANG TELAH DITAMBAHKAN ========== */}
         {devices && devices.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            
             {/* filter sesuai currentUserId */}
             {devices
               .filter((device) => {
@@ -260,10 +261,11 @@ export default function Dashboard() {
                 return device.userId === currentUserId;
               })
 
-              // di map semua hasil return device.userID 
+              // di map semua hasil return device.userID
+
               .map((device) => (
                 <div
-                  key={device.id}
+                  key={device.deviceId}
                   className="bg-white rounded-2xl shadow p-4 pt-8 hover:shadow-lg relative"
                 >
                   {/* Jika subscriber */}
@@ -300,6 +302,7 @@ export default function Dashboard() {
                       <PublisherSeekBarCard
                         device={device}
                         setDetail={setDetail}
+                        onSeekBarChange={undefined}
                       />
                     )}
                   {/* Jika ComboBox */}
@@ -359,24 +362,13 @@ export default function Dashboard() {
                   <div className="absolute top-2 right-4 flex space-x-2">
                     <button
                       className="text-gray-500 hover:text-yellow-500"
-                      onClick={() => {
-                        setForm({ name: device.name, topic: device.topic });
-                        setView(device.type);
-                        if (device.type === "publisher") {
-                          setSelectedPublisher(device.category || null);
-                        }
-                        setDetail(null);
-                        // setDevices(devices.filter((d) => d.id !== device.id));
-                      }}
+                      onClick={() => handleEdit(device.deviceId)}
                     >
                       <Pencil size={20} />
                     </button>
                     <button
                       className="text-gray-500 hover:text-red-500"
-                      onClick={() => {
-                        setDevices(devices.filter((d) => d.id !== device.id));
-                        if (detail?.id === device.id) setDetail(null);
-                      }}
+                      onClick={() => handleDelete(device.deviceId)}
                     >
                       <Trash2 size={20} />
                     </button>

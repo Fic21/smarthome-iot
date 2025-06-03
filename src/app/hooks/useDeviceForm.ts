@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 interface FormState {
+  deviceId?: string;
   name: string;
   topic: string;
 }

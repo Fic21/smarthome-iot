@@ -1,5 +1,5 @@
 export interface Device {
-  userId:number;
+  userId?:number;
   deviceId: string;
   name: string;
   topic: string;
