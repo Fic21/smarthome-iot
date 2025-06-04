@@ -110,22 +110,40 @@ export async function PUT(request: Request) {
 }
 
 // DELETE
-export async function DELETE(request: Request) {
+export async function DELETE(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const deviceId = searchParams.get("deviceId");
+
+  // Validasi: apakah deviceId ada dan valid (misalnya string)
+  if (!deviceId || typeof deviceId !== "string") {
+    return NextResponse.json(
+      { error: "Missing or invalid deviceId" },
+      { status: 400 }
+    );
+  }
+
   try {
-    const { searchParams } = new URL(request.url);
-    const deviceId = searchParams.get("deviceId");
-
-    if (!deviceId) {
-      return NextResponse.json({ error: "Missing deviceId" }, { status: 400 });
-    }
-
-    await prisma.deviceConfiguration.delete({
-      where: { deviceId },
+    // Cek apakah device ada
+    const device = await prisma.deviceConfiguration.findUnique({
+      where: { deviceId }
     });
 
-    return new NextResponse(null, { status: 204 });
+    if (!device) {
+      return NextResponse.json({ error: "Device not found" }, { status: 404 });
+    }
+
+    // Hapus device
+    await prisma.deviceConfiguration.delete({
+      where: { deviceId }
+    });
+
+    // Return sukses
+    return new NextResponse(null, { status: 204 }); // No Content
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
