@@ -101,6 +101,7 @@ export function useDeviceManager() {
 
   const handleDelete = (deviceId: string) => {
     setDevices((prevDevices) =>
+      
       prevDevices.filter((dev) => dev.deviceId !== deviceId)
     );
     deviceList.deleteDevice(deviceId);
