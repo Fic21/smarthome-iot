@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ user }, { status: 201 });
-  } catch (error: any) {
+  } catch (error:error) {
     console.error('Error creating user:', error);
 
     if (error.code === 'P2002') { // Prisma unique constraint violation

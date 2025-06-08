@@ -32,16 +32,39 @@ export function useDeviceManager() {
     null
   );
 
-  const handleSave = () => {
-    if (!deviceView.view) return;
-    if (!deviceForm.form.topic.trim()) return;
+  const handleSave = async () => {
+  const manualBrokerUrl = "ws://localhost:8083/mqtt";
+  const manualBrokerPort = "1883";
 
-    const currentUserId = localStorage.getItem("currentUserId");
+  if (!deviceView.view) return;
+  if (!deviceForm.form.topic.trim()) return;
 
-    if (!currentUserId) {
-      alert("User belum login, silakan login terlebih dahulu.");
-      return;
-    }
+  const currentUserId = Number(localStorage.getItem("currentUserId"));
+  if (!currentUserId) {
+    alert("User belum login, silakan login terlebih dahulu.");
+    return;
+  }
+
+  // Siapkan payload untuk fetch token
+  const payload = {
+    userId: currentUserId,
+    deviceId: deviceForm.form.deviceId || "",  // Jika ADD, kirim "" ke backend (backend handle sendiri)
+    topic: deviceForm.form.topic,
+    type: deviceView.view,
+  };
+
+  try {
+    const res = await fetch("/api/mqtt/generateJwt", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) throw new Error("Failed to generate token");
+
+    const tokenData = await res.json();
 
     if (deviceForm.form.deviceId) {
       // EDIT existing device
@@ -58,26 +81,19 @@ export function useDeviceManager() {
                   deviceForm.selectedInputTambahan.length > 0
                     ? deviceForm.selectedInputTambahan
                     : undefined,
+                mqttBrokerUrl: manualBrokerUrl,
+                mqttBrokerPort: Number(manualBrokerPort),
+                mqttToken: tokenData.token,
+                mqttTokenExpiry: tokenData.expiry,
+                userId: Number(currentUserId),
               }
             : dev
         )
       );
 
+      // Update to deviceList
       deviceList.updateDevice({
         deviceId: deviceForm.form.deviceId,
-        name: deviceForm.form.name || selectedPublisher || "Publisher",
-        topic: deviceForm.form.topic,
-        type: deviceView.view,
-        category: selectedPublisher || undefined,
-        inputtambahan: deviceForm.selectedInputTambahan.length > 0
-          ? deviceForm.selectedInputTambahan
-          : undefined,
-      });
-    } else {
-      // ADD new device
-      const newDevice = {
-        userId: currentUserId,
-        deviceId: uuidv4(),
         name: deviceForm.form.name || selectedPublisher || "Publisher",
         topic: deviceForm.form.topic,
         type: deviceView.view,
@@ -86,22 +102,53 @@ export function useDeviceManager() {
           deviceForm.selectedInputTambahan.length > 0
             ? deviceForm.selectedInputTambahan
             : undefined,
+        mqttBrokerUrl: manualBrokerUrl,
+        mqttBrokerPort: Number(manualBrokerPort),
+        mqttToken: tokenData.token,
+        mqttTokenExpiry: tokenData.expiry,
+        userId: Number(currentUserId),
+      });
+    } else {
+      // ADD new device
+      const newDeviceId = uuidv4();
+      const newDevice = {
+        userId: Number(currentUserId),
+        deviceId: newDeviceId,
+        name: deviceForm.form.name || selectedPublisher || "Publisher",
+        topic: deviceForm.form.topic,
+        type: deviceView.view,
+        category: selectedPublisher || undefined,
+        inputtambahan:
+          deviceForm.selectedInputTambahan.length > 0
+            ? deviceForm.selectedInputTambahan
+            : undefined,
+        mqttBrokerUrl: manualBrokerUrl,
+        mqttBrokerPort: Number(manualBrokerPort),
+        mqttToken: tokenData.token,
+        mqttTokenExpiry: tokenData.expiry,
       };
 
+      // Tambahkan ke state agar card muncul
       setDevices((prevDevices) => [...prevDevices, newDevice]);
+
+      // Simpan ke deviceList
       deviceList.addDevice(newDevice);
     }
 
-    // Reset semua form dan state terkait
+    // Reset form dan state
     deviceForm.setForm({ name: "", topic: "", deviceId: undefined });
     setSelectedPublisher(null);
     deviceView.setView(null);
     deviceForm.setSelectedInputTambahan([]);
-  };
+
+  } catch (error) {
+    alert("Gagal generate token: " + error.message);
+  }
+};
+
 
   const handleDelete = (deviceId: string) => {
     setDevices((prevDevices) =>
-      
       prevDevices.filter((dev) => dev.deviceId !== deviceId)
     );
     deviceList.deleteDevice(deviceId);

@@ -4,10 +4,21 @@ interface FormState {
   deviceId?: string;
   name: string;
   topic: string;
+  mqttBrokerUrl?: string;
+  mqttBrokerPort?: string;  // simpan sebagai string biar lebih gampang diinput pakai textfield
+  mqttToken?: string;
+  mqttTokenExpiry?: string;
 }
 
 export function useDeviceForm() {
-  const [form, setForm] = useState<FormState>({ name: "", topic: "" });
+  const [form, setForm] = useState<FormState>({
+  name: "",
+  topic: "",
+  mqttBrokerUrl: "",
+  mqttBrokerPort: "",
+  mqttToken: "",
+  mqttTokenExpiry: "",
+});
   const [selectedInputTambahan, setSelectedInputTambahan] = useState<string[]>([]);
 
   const handleInputChange = (index: number, value: string) => {

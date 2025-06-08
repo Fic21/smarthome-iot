@@ -61,8 +61,26 @@ export default function Dashboard() {
     return null; // Avoid SSR-client mismatch
   }
 
-  // const { devices, setDevices, selectedDevice, handleSave } =
-  //   useDeviceManager();
+  // ini untuk debug 
+  // console.log("Devices: ", devices);
+  // console.log(
+  //   "Filtered devices: ",
+  //   devices.filter(
+  //     (device) => device.userId === localStorage.getItem("currentUserId")
+  //   )
+  // );
+  // console.log(
+  //   "Local userId (type, value):",
+  //   typeof localStorage.getItem("currentUserId"),
+  //   localStorage.getItem("currentUserId")
+  // );
+  // devices.forEach((device) => {
+  //   console.log(
+  //     "Device userId (type, value):",
+  //     typeof device.userId,
+  //     device.userId
+  //   );
+  // });
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -77,7 +95,7 @@ export default function Dashboard() {
             {JSON.stringify(devices, null, 2)}
           </pre>
         </div>
-      )} 
+      )}
 
       {/* ========== MAIN CONTENT ========== */}
       <main className="p-6">
@@ -258,7 +276,8 @@ export default function Dashboard() {
             {devices
               .filter((device) => {
                 const currentUserId = localStorage.getItem("currentUserId");
-                return device.userId === currentUserId;
+                // return device.userId === currentUserId;
+                return String(device.userId)===currentUserId;
               })
 
               // di map semua hasil return device.userID
