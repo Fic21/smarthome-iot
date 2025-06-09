@@ -10,6 +10,7 @@ import {
 } from "@/libstorageHelper";
 import { v4 as uuidv4 } from "uuid";
 
+
 const LOCAL_STORAGE_KEY = "device_manager_devices";
 
 export function useDeviceManager() {
@@ -97,7 +98,7 @@ export function useDeviceManager() {
         name: deviceForm.form.name || selectedPublisher || "Publisher",
         topic: deviceForm.form.topic,
         type: deviceView.view,
-        category: selectedPublisher || undefined,
+        category: "",
         inputtambahan:
           deviceForm.selectedInputTambahan.length > 0
             ? deviceForm.selectedInputTambahan
@@ -145,6 +146,9 @@ export function useDeviceManager() {
     alert("Gagal generate token: " + error.message);
   }
 };
+
+
+
 
 
   const handleDelete = (deviceId: string) => {

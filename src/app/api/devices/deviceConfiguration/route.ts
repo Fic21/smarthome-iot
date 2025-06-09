@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 // GET
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const deviceId = searchParams.get("deviceId");
@@ -28,7 +28,7 @@ export async function GET(request: Request) {
 }
 
 // POST
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const {
@@ -36,6 +36,7 @@ export async function POST(request: Request) {
       name,
       topic,
       type,
+      // category,
       inputtambahan,
       userId,
       mqttBrokerUrl,
@@ -44,12 +45,21 @@ export async function POST(request: Request) {
       mqttTokenExpiry,
     } = body;
 
+    // Validasi sederhana wajibnya field yang penting
+    if (!deviceId || !name || !topic || !type || !userId) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
     const newDevice = await prisma.deviceConfiguration.create({
       data: {
         deviceId,
         name,
         topic,
         type,
+        // category,
         inputtambahan,
         userId,
         mqttBrokerUrl,
@@ -67,7 +77,7 @@ export async function POST(request: Request) {
 }
 
 // PUT
-export async function PUT(request: Request) {
+export async function PUT(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const deviceId = searchParams.get("deviceId");
@@ -81,6 +91,7 @@ export async function PUT(request: Request) {
       name,
       topic,
       type,
+      // category,
       inputtambahan,
       mqttBrokerUrl,
       mqttBrokerPort,
@@ -88,12 +99,21 @@ export async function PUT(request: Request) {
       mqttTokenExpiry,
     } = body;
 
+    // Validasi wajibnya category juga di update
+    if (!name || !topic || !type) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
     const updatedDevice = await prisma.deviceConfiguration.update({
       where: { deviceId },
       data: {
         name,
         topic,
         type,
+        // category,
         inputtambahan,
         mqttBrokerUrl,
         mqttBrokerPort,
@@ -110,40 +130,33 @@ export async function PUT(request: Request) {
 }
 
 // DELETE
-export async function DELETE(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const deviceId = searchParams.get("deviceId");
-
-  // Validasi: apakah deviceId ada dan valid (misalnya string)
-  if (!deviceId || typeof deviceId !== "string") {
-    return NextResponse.json(
-      { error: "Missing or invalid deviceId" },
-      { status: 400 }
-    );
-  }
-
+export async function DELETE(request: NextRequest) {
   try {
-    // Cek apakah device ada
+    const { searchParams } = new URL(request.url);
+    const deviceId = searchParams.get("deviceId");
+
+    if (!deviceId || typeof deviceId !== "string") {
+      return NextResponse.json(
+        { error: "Missing or invalid deviceId" },
+        { status: 400 }
+      );
+    }
+
     const device = await prisma.deviceConfiguration.findUnique({
-      where: { deviceId }
+      where: { deviceId },
     });
 
     if (!device) {
       return NextResponse.json({ error: "Device not found" }, { status: 404 });
     }
 
-    // Hapus device
     await prisma.deviceConfiguration.delete({
-      where: { deviceId }
+      where: { deviceId },
     });
 
-    // Return sukses
-    return new NextResponse(null, { status: 204 }); // No Content
+    return new NextResponse(null, { status: 204 });
   } catch (error) {
     console.error(error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
