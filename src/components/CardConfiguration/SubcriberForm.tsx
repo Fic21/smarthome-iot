@@ -11,7 +11,7 @@ export default function SubcriberForm({
 }: SubcriberFormProps) {
   return (
     <div className="space-y-2">
-      <label htmlFor="dropdown">Tipe Data:</label>
+      <label htmlFor="dropdown">QoS:</label>
       <select
         id="dropdown"
         value={selectedInputTambahan[0] || ""}

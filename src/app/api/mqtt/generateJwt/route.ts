@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 
-const SECRET = process.env.JWT_SECRET || "rahasia-super-secret";
+const SECRET = process.env.JWT_SECRET || "rahasia_super_secret";
 
 export async function POST(req: NextRequest) {
   try {

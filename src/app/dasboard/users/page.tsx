@@ -27,6 +27,9 @@ import PublisherMotorCard from "@/componentsCardInterface/PublisherMotorCard";
 import { Pencil, Trash2 } from "lucide-react";
 import PublisherFanCard from "@/componentsCardInterface/PublisherFanCard";
 import { useEffect, useState } from "react";
+import { useMqttClient } from "@/apphooks/useMqttClient";
+import TextForm from "@/componentsCardConfiguration/TextForm";
+
 // ======================
 // MAIN DASHBOARD COMPONENT
 // ======================
@@ -61,7 +64,7 @@ export default function Dashboard() {
     return null; // Avoid SSR-client mismatch
   }
 
-  // ini untuk debug 
+  // ini untuk debug
   // console.log("Devices: ", devices);
   // console.log(
   //   "Filtered devices: ",
@@ -88,14 +91,14 @@ export default function Dashboard() {
       <Navbar />
 
       {/* ========== TAMPILKAN JSON DARI DEVICES ==========  */}
-      {devices.length > 0 && (
+      {/* {devices.length > 0 && (
         <div className="mt-6">
           <h3 className="text-lg font-bold mb-2">Semua Data Device (JSON)</h3>
           <pre className="bg-gray-100 p-4 rounded text-sm overflow-auto">
             {JSON.stringify(devices, null, 2)}
           </pre>
         </div>
-      )}
+      )} */}
 
       {/* ========== MAIN CONTENT ========== */}
       <main className="p-6">
@@ -160,12 +163,23 @@ export default function Dashboard() {
               value={form.topic}
               onChange={(e) => setForm({ ...form, topic: e.target.value })}
             />
+            
             {/* Input Tambahan jika Subcriber */}
             {!selectedPublisher && (
               <div className="mb-2">
                 <SubcriberForm
                   selectedInputTambahan={selectedInputTambahan}
                   handleInputChangeDropdown={handleInputChangeDropdown}
+                />
+              </div>
+            )}
+
+            {/* Input Tambahan jika Text */}
+            {selectedPublisher === "Text" && (
+              <div className="mb-2">
+                <TextForm
+                  selectedInputTambahan={selectedInputTambahan}
+                  handleInputChange={handleInputChange}
                 />
               </div>
             )}
@@ -247,7 +261,7 @@ export default function Dashboard() {
               <button
                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                 onClick={() => {
-                  if (!form.name.trim() || !form.topic.trim()) {
+                  if (!form.name.trim() || !form.topic.trim() ||selectedInputTambahan.length===0||!(selectedInputTambahan[0]?.trim())) {
                     alert("Tidak boleh ada yang kosong!!");
                     return;
                   }
@@ -277,7 +291,7 @@ export default function Dashboard() {
               .filter((device) => {
                 const currentUserId = localStorage.getItem("currentUserId");
                 // return device.userId === currentUserId;
-                return String(device.userId)===currentUserId;
+                return String(device.userId) === currentUserId;
               })
 
               // di map semua hasil return device.userID
@@ -289,12 +303,13 @@ export default function Dashboard() {
                 >
                   {/* Jika subscriber */}
                   {device.type === "subscriber" && (
-                    <SubcriberCard device={device} setDetail={setDetail} />
+                    <SubcriberCard key={device.id} device={device} setDetail={setDetail} />
                   )}
                   {/* Jika Text */}
                   {device.type === "publisher" &&
                     device.category === "Text" && (
                       <PublisherTextCard
+                        key={device.id}
                         device={device}
                         setDetail={setDetail}
                       />
@@ -405,6 +420,12 @@ export default function Dashboard() {
               <strong>Name:</strong> {detail.name}
             </p>
             <p>
+              <strong>UserId:</strong> {detail.userId}
+            </p>
+            <p>
+              <strong>DeviceId:</strong> {detail.deviceId}
+            </p>
+            <p>
               <strong>Topic:</strong> {detail.topic}
             </p>
             <p>
@@ -417,6 +438,24 @@ export default function Dashboard() {
               <strong>Additional Inputs:</strong>{" "}
               {detail.inputtambahan?.join(", ")}
             </p>
+            <p>
+              <strong>MQTT Url:</strong> {detail.mqttBrokerUrl}
+            </p>
+            <p>
+              <strong>MQTT Port:</strong> {detail.mqttBrokerPort}
+            </p>
+            <p><strong>MQTT Token:</strong><textarea
+              className="w-full p-1 border border-gray-300 rounded resize-y"
+              readOnly
+              value={detail.mqttToken}
+              rows={1} // atau atur sesuai tinggi yang kamu mau
+              style={{ overflowY: "auto" }}
+            /> </p>
+            
+            <p>
+              <strong>MQTT Token Expired:</strong> {detail.mqttTokenExpiry}
+            </p>
+
             <button
               className="mt-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
               onClick={() => setDetail(null)}
