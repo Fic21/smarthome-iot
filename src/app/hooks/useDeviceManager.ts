@@ -33,166 +33,184 @@ export function useDeviceManager() {
   );
 
   const handleSave = async () => {
-    const manualBrokerUrl = "ws://localhost:8083/mqtt";
-    const manualBrokerPort = "1883";
+  const manualBrokerUrl = "ws://localhost:8083/mqtt";
+  const manualBrokerPort = "1883";
 
-    if (!deviceView.view) return;
-    if (!deviceForm.form.topic.trim()) return;
+  if (!deviceView.view) return;
+  if (!deviceForm.form.topic.trim()) return;
 
-    const currentUserId = Number(localStorage.getItem("currentUserId"));
-    if (!currentUserId) {
-      alert("User belum login, silakan login terlebih dahulu.");
-      return;
-    }
+  const currentUserId = Number(localStorage.getItem("currentUserId"));
+  if (!currentUserId) {
+    alert("User belum login, silakan login terlebih dahulu.");
+    return;
+  }
 
-    const payload = {
-      userId: currentUserId,
-      deviceId: deviceForm.form.deviceId || "",
-      topic: deviceForm.form.topic,
-      type: deviceView.view,
-    };
+  const payload = {
+    userId: currentUserId,
+    deviceId: deviceForm.form.deviceId || "",
+    topic: deviceForm.form.topic,
+    type: deviceView.view,
+  };
 
-    try {
-      const res = await fetch("/api/mqtt/generateJwt", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
+  try {
+    const res = await fetch("/api/mqtt/generateJwt", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) throw new Error("Failed to generate token");
+
+    const tokenData = await res.json();
+
+    if (deviceForm.form.deviceId) {
+      // EDIT existing device
+      setDevices((prevDevices) =>
+        prevDevices.map((dev) =>
+          dev.deviceId === deviceForm.form.deviceId
+            ? {
+                ...dev,
+                name: deviceForm.form.name || selectedPublisher || "Publisher",
+                topic: deviceForm.form.topic,
+                type: deviceView.view,
+                category: selectedPublisher || undefined,
+                inputtambahan:
+                  deviceForm.selectedInputTambahan.length > 0
+                    ? deviceForm.selectedInputTambahan
+                    : undefined,
+                mqttBrokerUrl: manualBrokerUrl,
+                mqttBrokerPort: Number(manualBrokerPort),
+                mqttToken: tokenData.token,
+                mqttTokenExpiry: tokenData.expiry,
+                userId: Number(currentUserId),
+              }
+            : dev
+        )
+      );
+
+      deviceList.updateDevice({
+        deviceId: deviceForm.form.deviceId,
+        name: deviceForm.form.name || selectedPublisher || "Publisher",
+        topic: deviceForm.form.topic,
+        type: deviceView.view,
+        category: selectedPublisher || undefined,
+        inputtambahan:
+          deviceForm.selectedInputTambahan.length > 0
+            ? deviceForm.selectedInputTambahan
+            : undefined,
+        mqttBrokerUrl: manualBrokerUrl,
+        mqttBrokerPort: Number(manualBrokerPort),
+        mqttToken: tokenData.token,
+        mqttTokenExpiry: tokenData.expiry,
+        userId: Number(currentUserId),
       });
 
-      if (!res.ok) throw new Error("Failed to generate token");
+      // Tambahkan PUT ke endpoint deviceConfiguration
+      const putPayload = {
+        name: deviceForm.form.name || selectedPublisher || "Publisher",
+        topic: deviceForm.form.topic,
+        type: deviceView.view,
+        inputtambahan:
+          deviceForm.selectedInputTambahan.length > 0
+            ? deviceForm.selectedInputTambahan
+            : undefined,
+        mqttBrokerUrl: manualBrokerUrl,
+        mqttBrokerPort: Number(manualBrokerPort),
+        mqttToken: tokenData.token,
+        mqttTokenExpiry: tokenData.expiry,
+      };
 
-      const tokenData = await res.json();
+      await fetch(
+        `/api/devices/deviceConfiguration?deviceId=${deviceForm.form.deviceId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(putPayload),
+        }
+      ).catch((err) => {
+        console.error("Failed PUT request:", err);
+      });
 
-      let finalDevice;
-      if (deviceForm.form.deviceId) {
-        // EDIT existing device
-        setDevices((prevDevices) =>
-          prevDevices.map((dev) =>
-            dev.deviceId === deviceForm.form.deviceId
-              ? {
-                  ...dev,
-                  name:
-                    deviceForm.form.name || selectedPublisher || "Publisher",
-                  topic: deviceForm.form.topic,
-                  type: deviceView.view,
-                  category: selectedPublisher || undefined,
-                  inputtambahan:
-                    deviceForm.selectedInputTambahan.length > 0
-                      ? deviceForm.selectedInputTambahan
-                      : undefined,
-                  mqttBrokerUrl: manualBrokerUrl,
-                  mqttBrokerPort: Number(manualBrokerPort),
-                  mqttToken: tokenData.token,
-                  mqttTokenExpiry: tokenData.expiry,
-                  userId: Number(currentUserId),
-                }
-              : dev
-          )
-        );
+    } else {
+      // ADD new device
+      const newDeviceId = uuidv4();
+      const newDevice = {
+        userId: Number(currentUserId),
+        deviceId: newDeviceId,
+        name: deviceForm.form.name || selectedPublisher || "Publisher",
+        topic: deviceForm.form.topic,
+        type: deviceView.view,
+        category: selectedPublisher || undefined,
+        inputtambahan:
+          deviceForm.selectedInputTambahan.length > 0
+            ? deviceForm.selectedInputTambahan
+            : undefined,
+        mqttBrokerUrl: manualBrokerUrl,
+        mqttBrokerPort: Number(manualBrokerPort),
+        mqttToken: tokenData.token,
+        mqttTokenExpiry: tokenData.expiry,
+      };
 
-        deviceList.updateDevice({
-          deviceId: deviceForm.form.deviceId,
-          name: deviceForm.form.name || selectedPublisher || "Publisher",
-          topic: deviceForm.form.topic,
-          type: deviceView.view,
-          category: selectedPublisher || undefined,
-          inputtambahan:
-            deviceForm.selectedInputTambahan.length > 0
-              ? deviceForm.selectedInputTambahan
-              : undefined,
-          mqttBrokerUrl: manualBrokerUrl,
-          mqttBrokerPort: Number(manualBrokerPort),
-          mqttToken: tokenData.token,
-          mqttTokenExpiry: tokenData.expiry,
-          userId: Number(currentUserId),
-        });
+      setDevices((prevDevices) => [...prevDevices, newDevice]);
+      deviceList.addDevice(newDevice);
 
-        // Prepare payload for POST
-        finalDevice = {
-          deviceId: deviceForm.form.deviceId,
-          name: deviceForm.form.name || selectedPublisher || "Publisher",
-          topic: deviceForm.form.topic,
-          type: deviceView.view,
-          // inputtambahan:
-          //   deviceForm.selectedInputTambahan.length > 0
-          //     ? deviceForm.selectedInputTambahan
-          //     : undefined,
-          inputtambahan:
-            deviceForm.selectedInputTambahan.length > 0
-              ? deviceForm.selectedInputTambahan.reduce((acc, item) => {
-                  acc[item.key] = item.value;
-                  return acc;
-                }, {})
-              : null,
-          userId: Number(currentUserId),
-          mqttBrokerUrl: manualBrokerUrl,
-          mqttBrokerPort: Number(manualBrokerPort),
-          mqttToken: tokenData.token,
-          mqttTokenExpiry: tokenData.expiry,
-        };
-      } else {
-        // ADD new device
-        const newDeviceId = uuidv4();
-        const newDevice = {
-          userId: Number(currentUserId),
-          deviceId: newDeviceId,
-          name: deviceForm.form.name || selectedPublisher || "Publisher",
-          topic: deviceForm.form.topic,
-          type: deviceView.view,
-          category: selectedPublisher || undefined,
-          inputtambahan:
-            deviceForm.selectedInputTambahan.length > 0
-              ? deviceForm.selectedInputTambahan
-              : undefined,
-          mqttBrokerUrl: manualBrokerUrl,
-          mqttBrokerPort: Number(manualBrokerPort),
-          mqttToken: tokenData.token,
-          mqttTokenExpiry: tokenData.expiry,
-        };
+      // Tambahkan POST ke endpoint deviceConfiguration
+      const postPayload = {
+        deviceId: newDeviceId,
+        name: deviceForm.form.name || selectedPublisher || "Publisher",
+        topic: deviceForm.form.topic,
+        type: deviceView.view,
+        inputtambahan:
+          deviceForm.selectedInputTambahan.length > 0
+            ? deviceForm.selectedInputTambahan
+            : undefined,
+        userId: Number(currentUserId),
+        mqttBrokerUrl: manualBrokerUrl,
+        mqttBrokerPort: Number(manualBrokerPort),
+        mqttToken: tokenData.token,
+        mqttTokenExpiry: tokenData.expiry,
+      };
 
-        setDevices((prevDevices) => [...prevDevices, newDevice]);
-        deviceList.addDevice(newDevice);
-
-        // Prepare payload for POST
-        finalDevice = {
-          deviceId: newDeviceId,
-          name: deviceForm.form.name || selectedPublisher || "Publisher",
-          topic: deviceForm.form.topic,
-          type: deviceView.view,
-          inputtambahan:
-            deviceForm.selectedInputTambahan.length > 0
-              ? deviceForm.selectedInputTambahan
-              : undefined,
-          userId: Number(currentUserId),
-          mqttBrokerUrl: manualBrokerUrl,
-          mqttBrokerPort: Number(manualBrokerPort),
-          mqttToken: tokenData.token,
-          mqttTokenExpiry: tokenData.expiry,
-        };
-      }
-
-      // Kirim finalDevice ke endpoint JSON (POST)
       await fetch("/api/devices/deviceConfiguration", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(finalDevice),
+        body: JSON.stringify(postPayload),
+      }).catch((err) => {
+        console.error("Failed POST request:", err);
       });
-
-      // Reset form
-      deviceForm.setForm({ name: "", topic: "", deviceId: undefined });
-      setSelectedPublisher(null);
-      deviceView.setView(null);
-      deviceForm.setSelectedInputTambahan([]);
-    } catch (error) {
-      alert("Gagal generate token: " + error.message);
     }
-  };
 
-  const handleDelete = (deviceId: string) => {
+    // Reset form
+    deviceForm.setForm({ name: "", topic: "", deviceId: undefined });
+    setSelectedPublisher(null);
+    deviceView.setView(null);
+    deviceForm.setSelectedInputTambahan([]);
+  } catch (error) {
+    alert("Gagal generate token: " + error.message);
+  }
+};
+
+
+const handleDelete = async (deviceId: string) => {
+  try {
+    // Panggil endpoint API delete
+    const res = await fetch(`/api/devices/deviceConfiguration?deviceId=${deviceId}`, {
+      method: "DELETE",
+    });
+
+    if (!res.ok) {
+      throw new Error("Terjadi kesalahan saat menghapus device di server.");
+    }
+
+    alert("Device berhasil dihapus dari server.");
+
+    // Logika lama tetap dipertahankan
     setDevices((prevDevices) =>
       prevDevices.filter((dev) => dev.deviceId !== deviceId)
     );
@@ -209,7 +227,12 @@ export function useDeviceManager() {
       deviceView.setView(null);
       deviceForm.setSelectedInputTambahan([]);
     }
-  };
+  } catch (error) {
+    alert("Terjadi kesalahan saat menghapus: " + error.message);
+  }
+};
+
+ 
 
   // Fungsi untuk mengisi form saat edit device
   const handleEdit = (deviceId: string) => {
@@ -243,3 +266,138 @@ export function useDeviceManager() {
     handleEdit,
   };
 }
+
+
+
+  //   const handleSave = async () => {
+  //   const manualBrokerUrl = "ws://localhost:8083/mqtt";
+  //   const manualBrokerPort = "1883";
+
+  //   if (!deviceView.view) return;
+  //   if (!deviceForm.form.topic.trim()) return;
+
+  //   const currentUserId = Number(localStorage.getItem("currentUserId"));
+  //   if (!currentUserId) {
+  //     alert("User belum login, silakan login terlebih dahulu.");
+  //     return;
+  //   }
+
+  //   // Siapkan payload untuk fetch token
+  //   const payload = {
+  //     userId: currentUserId,
+  //     deviceId: deviceForm.form.deviceId || "",  // Jika ADD, kirim "" ke backend (backend handle sendiri)
+  //     topic: deviceForm.form.topic,
+  //     type: deviceView.view,
+  //   };
+
+  //   try {
+  //     const res = await fetch("/api/mqtt/generateJwt", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(payload),
+  //     });
+
+  //     if (!res.ok) throw new Error("Failed to generate token");
+
+  //     const tokenData = await res.json();
+
+  //     if (deviceForm.form.deviceId) {
+  //       // EDIT existing device
+  //       setDevices((prevDevices) =>
+  //         prevDevices.map((dev) =>
+  //           dev.deviceId === deviceForm.form.deviceId
+  //             ? {
+  //                 ...dev,
+  //                 name: deviceForm.form.name || selectedPublisher || "Publisher",
+  //                 topic: deviceForm.form.topic,
+  //                 type: deviceView.view,
+  //                 category: selectedPublisher || undefined,
+  //                 inputtambahan:
+  //                   deviceForm.selectedInputTambahan.length > 0
+  //                     ? deviceForm.selectedInputTambahan
+  //                     : undefined,
+  //                 mqttBrokerUrl: manualBrokerUrl,
+  //                 mqttBrokerPort: Number(manualBrokerPort),
+  //                 mqttToken: tokenData.token,
+  //                 mqttTokenExpiry: tokenData.expiry,
+  //                 userId: Number(currentUserId),
+  //               }
+  //             : dev
+  //         )
+  //       );
+
+  //       // Update to deviceList
+  //       deviceList.updateDevice({
+  //         deviceId: deviceForm.form.deviceId,
+  //         name: deviceForm.form.name || selectedPublisher || "Publisher",
+  //         topic: deviceForm.form.topic,
+  //         type: deviceView.view,
+  //         category: selectedPublisher || undefined,
+  //         inputtambahan:
+  //           deviceForm.selectedInputTambahan.length > 0
+  //             ? deviceForm.selectedInputTambahan
+  //             : undefined,
+  //         mqttBrokerUrl: manualBrokerUrl,
+  //         mqttBrokerPort: Number(manualBrokerPort),
+  //         mqttToken: tokenData.token,
+  //         mqttTokenExpiry: tokenData.expiry,
+  //         userId: Number(currentUserId),
+  //       });
+  //     } else {
+  //       // ADD new device
+  //       const newDeviceId = uuidv4();
+  //       const newDevice = {
+  //         userId: Number(currentUserId),
+  //         deviceId: newDeviceId,
+  //         name: deviceForm.form.name || selectedPublisher || "Publisher",
+  //         topic: deviceForm.form.topic,
+  //         type: deviceView.view,
+  //         category: selectedPublisher || undefined,
+  //         inputtambahan:
+  //           deviceForm.selectedInputTambahan.length > 0
+  //             ? deviceForm.selectedInputTambahan
+  //             : undefined,
+  //         mqttBrokerUrl: manualBrokerUrl,
+  //         mqttBrokerPort: Number(manualBrokerPort),
+  //         mqttToken: tokenData.token,
+  //         mqttTokenExpiry: tokenData.expiry,
+  //       };
+
+  //       // Tambahkan ke state agar card muncul
+  //       setDevices((prevDevices) => [...prevDevices, newDevice]);
+
+  //       // Simpan ke deviceList
+  //       deviceList.addDevice(newDevice);
+  //     }
+
+  //     // Reset form dan state
+  //     deviceForm.setForm({ name: "", topic: "", deviceId: undefined });
+  //     setSelectedPublisher(null);
+  //     deviceView.setView(null);
+  //     deviceForm.setSelectedInputTambahan([]);
+
+  //   } catch (error) {
+  //     alert("Gagal generate token: " + error.message);
+  //   }
+  // };
+
+   // const handleDelete = (deviceId: string) => {
+  //   setDevices((prevDevices) =>
+  //     prevDevices.filter((dev) => dev.deviceId !== deviceId)
+  //   );
+  //   deviceList.deleteDevice(deviceId);
+
+  //   if (deviceView.detail && deviceView.detail.deviceId === deviceId) {
+  //     deviceView.setDetail(null);
+  //   }
+
+  //   // Jika sedang edit device yang dihapus, reset form
+  //   if (deviceForm.form.deviceId === deviceId) {
+  //     deviceForm.setForm({ name: "", topic: "", deviceId: undefined });
+  //     setSelectedPublisher(null);
+  //     deviceView.setView(null);
+  //     deviceForm.setSelectedInputTambahan([]);
+  //   }
+  // };
