@@ -3,6 +3,21 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+// Utility function: handle internal server errors
+function handleServerError(error: any) {
+  console.error("Internal Server Error:", error);
+  return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+}
+
+// Utility function: parse JSON safely
+async function parseRequestJSON(request: NextRequest) {
+  try {
+    return await request.json();
+  } catch (err) {
+    return null;
+  }
+}
+
 // GET
 export async function GET(request: NextRequest) {
   try {
@@ -17,26 +32,29 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: "Device not found" }, { status: 404 });
       }
       return NextResponse.json(device, { status: 200 });
-    } else {
-      const devices = await prisma.deviceConfiguration.findMany();
-      return NextResponse.json(devices, { status: 200 });
     }
+
+    const devices = await prisma.deviceConfiguration.findMany();
+    return NextResponse.json(devices, { status: 200 });
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return handleServerError(error);
   }
 }
 
 // POST
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = await parseRequestJSON(request);
+    if (!body) {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
+
     const {
       deviceId,
       name,
       topic,
       type,
-      // category,
+      category,
       inputtambahan,
       userId,
       mqttBrokerUrl,
@@ -45,12 +63,22 @@ export async function POST(request: NextRequest) {
       mqttTokenExpiry,
     } = body;
 
-    // Validasi sederhana wajibnya field yang penting
-    if (!deviceId || !name || !topic || !type || !userId) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
+    // Validate required fields
+    if (!deviceId || !name || !topic || !type || !category || !userId) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    // Validate userId exists
+    const userExists = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!userExists) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Validate inputtambahan is object or undefined
+    if (inputtambahan && typeof inputtambahan !== "object") {
+      return NextResponse.json({ error: "Invalid inputtambahan format" }, { status: 400 });
     }
 
     const newDevice = await prisma.deviceConfiguration.create({
@@ -59,11 +87,11 @@ export async function POST(request: NextRequest) {
         name,
         topic,
         type,
-        // category,
+        category,
         inputtambahan,
         userId,
         mqttBrokerUrl,
-        mqttBrokerPort,
+        mqttBrokerPort: mqttBrokerPort ? Number(mqttBrokerPort) : undefined,
         mqttToken,
         mqttTokenExpiry: mqttTokenExpiry ? new Date(mqttTokenExpiry) : undefined,
       },
@@ -71,8 +99,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(newDevice, { status: 201 });
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return handleServerError(error);
   }
 }
 
@@ -86,12 +113,16 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "Missing deviceId" }, { status: 400 });
     }
 
-    const body = await request.json();
+    const body = await parseRequestJSON(request);
+    if (!body) {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
+
     const {
       name,
       topic,
       type,
-      // category,
+      category,
       inputtambahan,
       mqttBrokerUrl,
       mqttBrokerPort,
@@ -99,12 +130,13 @@ export async function PUT(request: NextRequest) {
       mqttTokenExpiry,
     } = body;
 
-    // Validasi wajibnya category juga di update
-    if (!name || !topic || !type) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
+    if (!name || !topic || !type || !category) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    // Validate inputtambahan is object or undefined
+    if (inputtambahan && typeof inputtambahan !== "object") {
+      return NextResponse.json({ error: "Invalid inputtambahan format" }, { status: 400 });
     }
 
     const updatedDevice = await prisma.deviceConfiguration.update({
@@ -113,10 +145,10 @@ export async function PUT(request: NextRequest) {
         name,
         topic,
         type,
-        // category,
+        category,
         inputtambahan,
         mqttBrokerUrl,
-        mqttBrokerPort,
+        mqttBrokerPort: mqttBrokerPort ? Number(mqttBrokerPort) : undefined,
         mqttToken,
         mqttTokenExpiry: mqttTokenExpiry ? new Date(mqttTokenExpiry) : undefined,
       },
@@ -124,8 +156,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(updatedDevice, { status: 200 });
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return handleServerError(error);
   }
 }
 
@@ -135,11 +166,8 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const deviceId = searchParams.get("deviceId");
 
-    if (!deviceId || typeof deviceId !== "string") {
-      return NextResponse.json(
-        { error: "Missing or invalid deviceId" },
-        { status: 400 }
-      );
+    if (!deviceId) {
+      return NextResponse.json({ error: "Missing deviceId" }, { status: 400 });
     }
 
     const device = await prisma.deviceConfiguration.findUnique({
@@ -156,7 +184,6 @@ export async function DELETE(request: NextRequest) {
 
     return new NextResponse(null, { status: 204 });
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return handleServerError(error);
   }
 }

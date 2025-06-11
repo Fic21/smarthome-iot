@@ -54,12 +54,19 @@ export default function Dashboard() {
     handleAddItem,
     handleDeleteItem,
     handleInputChangeDropdown,
+    fetchData,
   } = useDeviceManager();
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);
   }, []);
+  useEffect(() => {
+  if (mounted) {
+    // Hanya fetch data setelah mounted === true
+    fetchData();
+  }
+}, [mounted]);
   if (!mounted) {
     return null; // Avoid SSR-client mismatch
   }

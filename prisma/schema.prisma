@@ -22,6 +22,7 @@ model DeviceConfiguration {
   name          String
   topic         String
   type          String
+  category      String
   inputtambahan Json?
   userId        Int
   createdAt     DateTime @default(now())
