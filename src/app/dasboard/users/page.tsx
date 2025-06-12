@@ -27,8 +27,11 @@ import PublisherMotorCard from "@/componentsCardInterface/PublisherMotorCard";
 import { Pencil, Trash2 } from "lucide-react";
 import PublisherFanCard from "@/componentsCardInterface/PublisherFanCard";
 import { useEffect, useState } from "react";
-import { useMqttClient } from "@/apphooks/useMqttClient";
+// import { useMqttClient } from "@/apphooks/useMqttClient";
 import TextForm from "@/componentsCardConfiguration/TextForm";
+import Light from "@/componentsCardConfiguration/LightForm";
+import Fan from "@/componentsCardConfiguration/FanForm";
+import Motor from "@/componentsCardConfiguration/MotorForm";
 
 // ======================
 // MAIN DASHBOARD COMPONENT
@@ -257,6 +260,33 @@ export default function Dashboard() {
             {selectedPublisher === "Time Picker" && (
               <div className="mb-2">
                 <TimePickerForm
+                  selectedInputTambahan={selectedInputTambahan}
+                  handleInputChange={handleInputChange}
+                />
+              </div>
+            )}
+            {/* Input Tambahan jika Light  */}
+            {selectedPublisher === "Light" && (
+              <div className="mb-2">
+                <Light
+                  selectedInputTambahan={selectedInputTambahan}
+                  handleInputChange={handleInputChange}
+                />
+              </div>
+            )}
+            {/* Input Tambahan jika Fan  */}
+            {selectedPublisher === "Fan" && (
+              <div className="mb-2">
+                <Fan
+                  selectedInputTambahan={selectedInputTambahan}
+                  handleInputChange={handleInputChange}
+                />
+              </div>
+            )}
+            {/* Input Tambahan jika Motor   */}
+            {selectedPublisher === "Motor" && (
+              <div className="mb-2">
+                <Motor
                   selectedInputTambahan={selectedInputTambahan}
                   handleInputChange={handleInputChange}
                 />

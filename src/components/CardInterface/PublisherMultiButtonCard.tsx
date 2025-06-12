@@ -1,8 +1,18 @@
-export default function PublisherMultiButtonCard({ device, setDetail }) {
+import { useMqttClient } from "@/apphooks/useMqttClient";
+import type { MqttDeviceConfig } from "@/libmqttConfig";
+
+interface PublisherMultiButtonCardProps {
+  device: MqttDeviceConfig;
+  setDetail?: (device: MqttDeviceConfig) => void;
+}
+
+export default function PublisherMultiButtonCard({ device, setDetail }: PublisherMultiButtonCardProps) {
+  const { isConnected, publish } = useMqttClient(device);
+
   return (
     <div
       className="bg-blue-50 border border-blue-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer max-w-sm"
-      onClick={() => setDetail(device)}
+      onClick={() => setDetail && setDetail(device)}
     >
       <div className="mb-2">
         <div className="text-xs text-gray-600 font-medium">Nama Device</div>
@@ -19,7 +29,7 @@ export default function PublisherMultiButtonCard({ device, setDetail }) {
           <div className="text-xs text-gray-600 font-medium mb-1">Input Tambahan</div>
           <div
             className="max-h-32 overflow-y-auto border border-gray-300 rounded p-2 space-y-2 bg-white"
-            onClick={e => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
             {device.inputtambahan.map((input, index) => (
               <button
@@ -27,7 +37,9 @@ export default function PublisherMultiButtonCard({ device, setDetail }) {
                 className="w-full text-center px-3 py-2 bg-blue-200 text-blue-900 rounded hover:bg-blue-300 active:bg-blue-400 focus:outline-none transition-colors duration-150"
                 onClick={(e) => {
                   e.stopPropagation();
-                  alert(`Button clicked: ${input}`);
+                  if (isConnected) {
+                    publish(input);
+                  }
                 }}
               >
                 {input}

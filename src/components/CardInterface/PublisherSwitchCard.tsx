@@ -1,20 +1,25 @@
 import React, { useState } from "react";
+import { useMqttClient } from "@/apphooks/useMqttClient";
+import type { MqttDeviceConfig } from "@/libmqttConfig";
 
-export default function PublisherButtonCard({ device, setDetail }) {
-  const isOnline = device.status === "online";
+export default function PublisherButtonCard({ device, setDetail }: { device: MqttDeviceConfig, setDetail: (d: MqttDeviceConfig) => void }) {
+  const { isConnected, publish } = useMqttClient(device);
   const [isActive, setIsActive] = useState(false);
 
-  const handleSwitchToggle = (e) => {
+  const handleSwitchToggle = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
-    setIsActive(!isActive);
+    const newState = !isActive;
+    setIsActive(newState);
 
-    if (!isActive) {
-      // Merah (OFF) → hijau (OFF)
-      console.log("Trigger:", device.inputtambahan[2]);
-    } else {
-      // Hijau (ON) → merah (ON)
-      console.log("Trigger:", device.inputtambahan[3]);
+    const topicToPublish = newState
+      ? device.inputtambahan?.[2]
+      : device.inputtambahan?.[3];
+
+    if (topicToPublish && isConnected) {
+      publish(topicToPublish);
     }
+
+    console.log("Trigger:", topicToPublish);
   };
 
   const label = isActive
@@ -37,10 +42,10 @@ export default function PublisherButtonCard({ device, setDetail }) {
         <div className="flex items-center">
           <span
             className={`text-sm font-semibold ${
-              isOnline ? "text-green-600" : "text-red-600"
+              isConnected ? "text-green-600" : "text-red-600"
             }`}
           >
-            {isOnline ? "🟢 Online" : "🔴 Offline"}
+            {isConnected ? "🟢 Connected" : "🔴 Disconnected"}
           </span>
         </div>
       </div>
@@ -72,21 +77,18 @@ export default function PublisherButtonCard({ device, setDetail }) {
       {/* SWITCH */}
       {device.inputtambahan?.length >= 4 && (
         <div className="mt-4 flex items-center">
-          {/* Switch */}
           <div
             onClick={handleSwitchToggle}
             className={`relative w-14 h-8 rounded-full cursor-pointer transition-colors duration-300 ${
               isActive ? "bg-green-500" : "bg-red-500"
             }`}
           >
-            {/* Slider */}
             <div
               className={`absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
                 isActive ? "translate-x-6" : "translate-x-0"
               }`}
             ></div>
           </div>
-          {/* Label */}
           <span className="ml-4 font-semibold text-gray-800">{label}</span>
         </div>
       )}

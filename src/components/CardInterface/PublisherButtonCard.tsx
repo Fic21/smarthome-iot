@@ -1,10 +1,26 @@
-export default function PublisherButtonCard({ device, setDetail }) {
-  const isOnline = device.status === "online";
+import React from "react";
+import { useMqttClient } from "@/apphooks/useMqttClient";
+import type { MqttDeviceConfig } from "@/libmqttConfig";
+
+interface PublisherCardProps {
+  device: MqttDeviceConfig;
+  setDetail?: (device: MqttDeviceConfig) => void;
+}
+
+export default function PublisherButtonCard({ device, setDetail }: PublisherCardProps) {
+  const { isConnected, publish } = useMqttClient(device);
+
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    if (device.inputtambahan?.[0]) {
+      publish(device.inputtambahan[0]);
+    }
+  };
 
   return (
     <div
       className="bg-blue-50 border border-blue-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer"
-      onClick={() => setDetail(device)}
+      onClick={() => setDetail && setDetail(device)}
     >
       {/* STATUS */}
       <div className="flex items-center justify-between mb-2">
@@ -17,10 +33,10 @@ export default function PublisherButtonCard({ device, setDetail }) {
         <div className="flex items-center">
           <span
             className={`text-sm font-semibold ${
-              isOnline ? "text-green-600" : "text-red-600"
+              isConnected ? "text-green-600" : "text-red-600"
             }`}
           >
-            {isOnline ? "🟢 Online" : "🔴 Offline"}
+            {isConnected ? "🟢 Connected" : "🔴 Disconnected"}
           </span>
         </div>
       </div>
@@ -53,8 +69,13 @@ export default function PublisherButtonCard({ device, setDetail }) {
       {device.inputtambahan?.[0] && (
         <div className="mt-4">
           <button
-            className="bg-blue-600 text-white rounded-lg px-3 py-2 text-sm hover:bg-blue-700 active:translate-y-1 active:shadow-inner transition-all duration-150 w-full"
-            disabled
+            onClick={handleClick}
+            disabled={!isConnected}
+            className={`rounded-lg px-3 py-2 text-sm w-full font-semibold text-white transition-all duration-150 ${
+              isConnected
+                ? "bg-blue-600 hover:bg-blue-700 active:translate-y-1 active:shadow-inner"
+                : "bg-gray-400 cursor-not-allowed"
+            }`}
           >
             {device.inputtambahan[0]}
           </button>
