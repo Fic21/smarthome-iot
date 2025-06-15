@@ -51,7 +51,8 @@ model DeviceLogPublisher {
   event       String
   createdAt   DateTime @default(now())
 
-  device DeviceConfiguration @relation(fields: [deviceId], references: [deviceId])
+  // device DeviceConfiguration @relation(fields: [deviceId], references: [deviceId])
+    device DeviceConfiguration @relation(fields: [deviceId], references: [deviceId], onDelete: Cascade)
 }
 
 model DeviceLogSubscriber {
@@ -70,5 +71,6 @@ model DeviceLogSubscriber {
 
   createdAt DateTime @default(now())
 
-  device DeviceConfiguration @relation(fields: [deviceId], references: [deviceId])
+  // device DeviceConfiguration @relation(fields: [deviceId], references: [deviceId])
+    device DeviceConfiguration @relation(fields: [deviceId], references: [deviceId], onDelete: Cascade)
 }

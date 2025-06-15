@@ -236,7 +236,7 @@ export function useDeviceManager() {
         throw new Error("Terjadi kesalahan saat menghapus device di server.");
       }
 
-      alert("Device berhasil dihapus dari server.");
+      // alert("Device berhasil dihapus dari server.");
 
       // Logika lama tetap dipertahankan
       setDevices((prevDevices) =>
