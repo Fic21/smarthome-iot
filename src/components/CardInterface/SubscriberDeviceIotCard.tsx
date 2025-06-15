@@ -2,15 +2,15 @@ import React, { useRef, useEffect } from "react";
 import { useMqttClient } from "@/apphooks/useMqttClient";
 import type { MqttDeviceConfig } from "@/libmqttConfig";
 
-interface SubscriberCardProps {
+interface SubscriberDeviceIotCardProps {
   device: MqttDeviceConfig;
   setDetail: (device: MqttDeviceConfig) => void;
 }
 
-export default function SubscriberCard({
+export default function SubscriberDeviceIotCard({
   device,
   setDetail,
-}: SubscriberCardProps) {
+}: SubscriberDeviceIotCardProps) {
   const { isConnected, logs } = useMqttClient(device);
   const logContainerRef = useRef<HTMLDivElement>(null);
 
@@ -21,7 +21,7 @@ export default function SubscriberCard({
     }
   }, [logs]);
 
-  const latestLog = logs.length > 0 ? logs[logs.length - 1] : null;
+  // const latestLog = logs.length > 0 ? logs[logs.length - 1] : null;
 
   return (
     <div
@@ -42,7 +42,7 @@ export default function SubscriberCard({
               isConnected ? "text-green-600" : "text-red-600"
             }`}
           >
-            {isConnected ? "🟢 Connected" : "🔴 Disconnected"}
+            {/* {isConnected ? "🟢 Connected" : "🔴 Disconnected"} */}
           </span>
         </div>
       </div>

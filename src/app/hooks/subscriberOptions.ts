@@ -1,4 +1,4 @@
 export const subscriberOptions = [
-  "Web",
-  "DeviceIot",
+  "Subscriber Web",
+  "Subscriber Device IoT",
 ];

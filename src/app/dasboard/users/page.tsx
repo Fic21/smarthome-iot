@@ -13,7 +13,6 @@ import ColorPickerForm from "@/componentsCardConfiguration/ColorPickerForm";
 import MultiButtonForm from "@/componentsCardConfiguration/MultiButtonForm";
 import TimePickerForm from "@/componentsCardConfiguration/TimePicker";
 import SubcriberForm from "@/componentsCardConfiguration/SubcriberForm";
-import SubcriberCard from "@/componentsCardInterface/SubcriberCard";
 import PublisherTextCard from "@/componentsCardInterface/PublisherTextCard";
 import PublisherButtonCard from "@/componentsCardInterface/PublisherButtonCard";
 import PublisherSwitchCard from "@/componentsCardInterface/PublisherSwitchCard";
@@ -33,6 +32,10 @@ import Light from "@/componentsCardConfiguration/LightForm";
 import Fan from "@/componentsCardConfiguration/FanForm";
 import Motor from "@/componentsCardConfiguration/MotorForm";
 import { subscriberOptions } from "@/apphooks/subscriberOptions";
+import SubscriberWebCard from "@/componentsCardInterface/SubscriberWebCard";
+import SubscriberDeviceIotCard from "@/componentsCardInterface/SubscriberDeviceIotCard";
+import DeviceIotForm from "@/componentsCardConfiguration/DeviceIotForm";
+import PublisherDeviceIotCard from "@/componentsCardInterface/PublisherDeviceIoTCard";
 
 // ======================
 // MAIN DASHBOARD COMPONENT
@@ -197,12 +200,31 @@ export default function Dashboard() {
               onChange={(e) => setForm({ ...form, topic: e.target.value })}
             />
             
-            {/* Input Tambahan jika Subcriber */}
-            {selectedSubscriber === "Web" && (
+            {/* Input Tambahan jika Subcriber Web */}
+            {selectedSubscriber === "Subscriber Web" && (
               <div className="mb-2">
                 <SubcriberForm
                   selectedInputTambahan={selectedInputTambahan}
                   handleInputChangeDropdown={handleInputChangeDropdown}
+                />
+              </div>
+            )}
+
+            {/* Input Tambahan jika Subcriber Device IoT */}
+            {selectedSubscriber === "Subscriber Device IoT" && (
+              <div className="mb-2">
+                <SubcriberForm
+                  selectedInputTambahan={selectedInputTambahan}
+                  handleInputChangeDropdown={handleInputChangeDropdown}
+                />
+              </div>
+            )}
+            {/* Input Tambahan jika Text */}
+            {selectedPublisher === "Device IoT" && (
+              <div className="mb-2">
+                <DeviceIotForm
+                  selectedInputTambahan={selectedInputTambahan}
+                  handleInputChange={handleInputChange}
                 />
               </div>
             )}
@@ -362,10 +384,23 @@ export default function Dashboard() {
                   key={device.deviceId}
                   className="bg-white rounded-2xl shadow p-4 pt-8 hover:shadow-lg relative"
                 >
-                  {/* Jika subscriber */}
-                  {device.type === "subscriber" && (
-                    <SubcriberCard key={device.id} device={device} setDetail={setDetail} />
+                  {/* Jika subscriber Web */}
+                  {device.type === "subscriber" && device.category ==="Subscriber Web"&& (
+                    <SubscriberWebCard key={device.id} device={device} setDetail={setDetail} />
                   )}
+                  {/* Jika subscriber Device IoT */}
+                  {device.type === "subscriber" && device.category ==="Subscriber Device IoT"&& (
+                    <SubscriberDeviceIotCard key={device.id} device={device} setDetail={setDetail} />
+                  )}
+                  {/* Jika Device IoT */}
+                  {device.type === "publisher" &&
+                    device.category === "Device IoT" && (
+                      <PublisherDeviceIotCard
+                        key={device.id}
+                        device={device}
+                        setDetail={setDetail}
+                      />
+                    )}
                   {/* Jika Text */}
                   {device.type === "publisher" &&
                     device.category === "Text" && (
