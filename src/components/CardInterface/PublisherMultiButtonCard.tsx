@@ -31,9 +31,10 @@ export default function PublisherMultiButtonCard({ device, setDetail }: Publishe
             className="max-h-32 overflow-y-auto border border-gray-300 rounded p-2 space-y-2 bg-white"
             onClick={(e) => e.stopPropagation()}
           >
-            {device.inputtambahan.map((input, index) => (
+            {device.inputtambahan.slice(1).map((input, index) => (
+
               <button
-                key={index}
+                key={index+1}
                 className="w-full text-center px-3 py-2 bg-blue-200 text-blue-900 rounded hover:bg-blue-300 active:bg-blue-400 focus:outline-none transition-colors duration-150"
                 onClick={(e) => {
                   e.stopPropagation();

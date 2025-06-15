@@ -14,8 +14,8 @@ export default function PublisherTextCard({ device, setDetail }: PublisherCardPr
   const { isConnected, logs, publish } = useMqttClient(device);
   const logsEndRef = useRef<HTMLDivElement | null>(null);
 
-  const minValue = Number(device.inputtambahan?.[0]) ?? 0;
-  const maxValue = Number(device.inputtambahan?.[1]) ?? 100;
+  const minValue = Number(device.inputtambahan?.[1]) ?? 0;
+  const maxValue = Number(device.inputtambahan?.[2]) ?? 100;
 
   useEffect(() => {
     if (logsEndRef.current) {

@@ -7,7 +7,10 @@ interface PublisherComboBoxCardProps {
   setDetail?: (device: MqttDeviceConfig) => void;
 }
 
-export default function PublisherComboBoxCard({ device, setDetail }: PublisherComboBoxCardProps) {
+export default function PublisherComboBoxCard({
+  device,
+  setDetail,
+}: PublisherComboBoxCardProps) {
   const [selectedValue, setSelectedValue] = useState("");
   const { isConnected, publish } = useMqttClient(device);
 
@@ -27,7 +30,9 @@ export default function PublisherComboBoxCard({ device, setDetail }: PublisherCo
     >
       <div className="mb-2">
         <div className="text-xs text-gray-600 font-medium">Nama Device</div>
-        <div className="font-semibold text-lg text-blue-800 truncate">{device.name}</div>
+        <div className="font-semibold text-lg text-blue-800 truncate">
+          {device.name}
+        </div>
       </div>
 
       <div className="mb-2">
@@ -38,12 +43,18 @@ export default function PublisherComboBoxCard({ device, setDetail }: PublisherCo
       {device.inputtambahan?.length > 0 && (
         <>
           <div className="mb-2">
-            <div className="text-xs text-gray-600 font-medium">Input Tambahan</div>
-            <div className="text-xs text-gray-500 italic">{device.inputtambahan.join(", ")}</div>
+            <div className="text-xs text-gray-600 font-medium">
+              Input Tambahan
+            </div>
+            <div className="text-xs text-gray-500 italic">
+              {device.inputtambahan.join(", ")}
+            </div>
           </div>
 
           <div className="mb-2">
-            <div className="text-xs text-gray-600 font-medium">Pilih Nilai:</div>
+            <div className="text-xs text-gray-600 font-medium">
+              Pilih Nilai:
+            </div>
             <select
               className="w-full border border-gray-300 rounded px-2 py-1 mt-1"
               value={selectedValue}
@@ -51,8 +62,8 @@ export default function PublisherComboBoxCard({ device, setDetail }: PublisherCo
               onClick={(e) => e.stopPropagation()}
             >
               <option value="">-- Pilih --</option>
-              {device.inputtambahan.map((item, index) => (
-                <option key={index} value={item}>
+              {device.inputtambahan.slice(1).map((item, index) => (
+                <option key={index + 1} value={item}>
                   {item}
                 </option>
               ))}

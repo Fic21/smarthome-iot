@@ -12,8 +12,8 @@ export default function PublisherButtonCard({ device, setDetail }: PublisherCard
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    if (device.inputtambahan?.[0]) {
-      publish(device.inputtambahan[0]);
+    if (device.inputtambahan?.[1]) {
+      publish(device.inputtambahan[1]);
     }
   };
 
@@ -66,7 +66,7 @@ export default function PublisherButtonCard({ device, setDetail }: PublisherCard
       </div>
 
       {/* BUTTON TAMPILAN */}
-      {device.inputtambahan?.[0] && (
+      {device.inputtambahan?.[1] && (
         <div className="mt-4">
           <button
             onClick={handleClick}
@@ -77,7 +77,7 @@ export default function PublisherButtonCard({ device, setDetail }: PublisherCard
                 : "bg-gray-400 cursor-not-allowed"
             }`}
           >
-            {device.inputtambahan[0]}
+            {device.inputtambahan[1]}
           </button>
         </div>
       )}

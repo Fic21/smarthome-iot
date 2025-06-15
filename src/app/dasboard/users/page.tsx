@@ -71,11 +71,11 @@ export default function Dashboard() {
     setMounted(true);
   }, []);
   useEffect(() => {
-  if (mounted) {
-    // Hanya fetch data setelah mounted === true
-    fetchData();
-  }
-}, [mounted]);
+    if (mounted) {
+      // Hanya fetch data setelah mounted === true
+      fetchData();
+    }
+  }, [mounted]);
   if (!mounted) {
     return null; // Avoid SSR-client mismatch
   }
@@ -136,7 +136,7 @@ export default function Dashboard() {
           </div>
         )}
         {/* ========== PILIHAN JENIS Subcriber ========== */}
-        {view === "subscriber"&&(
+        {view === "subscriber" && (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
             {subscriberOptions.map((option) => (
               <button
@@ -178,7 +178,8 @@ export default function Dashboard() {
         )}
 
         {/* ========== FORM INPUT SUBSCRIBER / PUBLISHER ========== */}
-        {((view === "subscriber" && selectedSubscriber) || selectedPublisher) && (
+        {((view === "subscriber" && selectedSubscriber) ||
+          selectedPublisher) && (
           <div className="bg-white p-4 rounded shadow mb-4 max-w-md">
             <h2 className="text-lg font-semibold mb-2">
               Tambah {view === "subscriber" ? "Subscriber" : selectedPublisher}
@@ -199,13 +200,13 @@ export default function Dashboard() {
               value={form.topic}
               onChange={(e) => setForm({ ...form, topic: e.target.value })}
             />
-            
+
             {/* Input Tambahan jika Subcriber Web */}
             {selectedSubscriber === "Subscriber Web" && (
               <div className="mb-2">
                 <SubcriberForm
                   selectedInputTambahan={selectedInputTambahan}
-                  handleInputChangeDropdown={handleInputChangeDropdown}
+                  handleInputChange={handleInputChange}
                 />
               </div>
             )}
@@ -215,7 +216,7 @@ export default function Dashboard() {
               <div className="mb-2">
                 <SubcriberForm
                   selectedInputTambahan={selectedInputTambahan}
-                  handleInputChangeDropdown={handleInputChangeDropdown}
+                  handleInputChange={handleInputChange}
                 />
               </div>
             )}
@@ -234,7 +235,8 @@ export default function Dashboard() {
               <div className="mb-2">
                 <TextForm
                   selectedInputTambahan={selectedInputTambahan}
-                  handleInputChange={handleInputChange}
+                  // handleInputChange={handleInputChange}
+                  handleInputChangeDropdown={handleInputChangeDropdown}
                 />
               </div>
             )}
@@ -274,7 +276,7 @@ export default function Dashboard() {
               <div className="mb-2">
                 <ComboBoxForm
                   selectedInputTambahan={selectedInputTambahan}
-                  // handleInputChange={handleInputChange}
+                  handleInputChange={handleInputChange}
                   handleAddItem={handleAddItem}
                   handleDeleteItem={handleDeleteItem}
                 />
@@ -295,7 +297,7 @@ export default function Dashboard() {
               <div className="mb-2">
                 <MultiButtonForm
                   selectedInputTambahan={selectedInputTambahan}
-                  // handleInputChange={handleInputChange}
+                  handleInputChange={handleInputChange}
                   handleAddItem={handleAddItem}
                   handleDeleteItem={handleDeleteItem}
                 />
@@ -343,7 +345,12 @@ export default function Dashboard() {
               <button
                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                 onClick={() => {
-                  if (!form.name.trim() || !form.topic.trim() ||selectedInputTambahan.length===0||!(selectedInputTambahan[0]?.trim())) {
+                  if (
+                    !form.name.trim() ||
+                    !form.topic.trim() ||
+                    selectedInputTambahan.length === 0 ||
+                    !selectedInputTambahan[0]?.trim()
+                  ) {
                     alert("Tidak boleh ada yang kosong!!");
                     return;
                   }
@@ -385,13 +392,23 @@ export default function Dashboard() {
                   className="bg-white rounded-2xl shadow p-4 pt-8 hover:shadow-lg relative"
                 >
                   {/* Jika subscriber Web */}
-                  {device.type === "subscriber" && device.category ==="Subscriber Web"&& (
-                    <SubscriberWebCard key={device.id} device={device} setDetail={setDetail} />
-                  )}
+                  {device.type === "subscriber" &&
+                    device.category === "Subscriber Web" && (
+                      <SubscriberWebCard
+                        key={device.id}
+                        device={device}
+                        setDetail={setDetail}
+                      />
+                    )}
                   {/* Jika subscriber Device IoT */}
-                  {device.type === "subscriber" && device.category ==="Subscriber Device IoT"&& (
-                    <SubscriberDeviceIotCard key={device.id} device={device} setDetail={setDetail} />
-                  )}
+                  {device.type === "subscriber" &&
+                    device.category === "Subscriber Device IoT" && (
+                      <SubscriberDeviceIotCard
+                        key={device.id}
+                        device={device}
+                        setDetail={setDetail}
+                      />
+                    )}
                   {/* Jika Publisher Device IoT */}
                   {device.type === "publisher" &&
                     device.category === "Publisher Device IoT" && (
@@ -540,14 +557,17 @@ export default function Dashboard() {
             <p>
               <strong>MQTT Port:</strong> {detail.mqttBrokerPort}
             </p>
-            <p><strong>MQTT Token:</strong><textarea
-              className="w-full p-1 border border-gray-300 rounded resize-y"
-              readOnly
-              value={detail.mqttToken}
-              rows={1} // atau atur sesuai tinggi yang kamu mau
-              style={{ overflowY: "auto" }}
-            /> </p>
-            
+            <p>
+              <strong>MQTT Token:</strong>
+              <textarea
+                className="w-full p-1 border border-gray-300 rounded resize-y"
+                readOnly
+                value={detail.mqttToken}
+                rows={1} // atau atur sesuai tinggi yang kamu mau
+                style={{ overflowY: "auto" }}
+              />{" "}
+            </p>
+
             <p>
               <strong>MQTT Token Expired:</strong> {detail.mqttTokenExpiry}
             </p>

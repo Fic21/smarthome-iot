@@ -24,7 +24,7 @@ export default function PublisherColorPickerCard({
   const handleSendColor = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
 
-    const format = device.inputtambahan?.[1] ?? "hex";
+    const format = device.inputtambahan?.[2] ?? "hex";
     let colorToSend = selectedColor;
 
     if (format.toLowerCase() === "rgb") {

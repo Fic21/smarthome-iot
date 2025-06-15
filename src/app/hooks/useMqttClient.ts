@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import mqtt, { MqttClient } from "mqtt";
+import mqtt, { MqttClient, IClientPublishOptions } from "mqtt";
 import type { MqttDeviceConfig } from "@/libmqttConfig";
 
 interface UseMqttClientReturn {
@@ -21,7 +21,7 @@ export function useMqttClient(deviceConfig?: MqttDeviceConfig): UseMqttClientRet
     }
 
     if (!deviceConfig.mqttBrokerUrl || !deviceConfig.mqttToken) {
-      setLogs((l) => [...l, "MQTT Broker URL or Token is missing in device config"]);
+      setLogs((l) => [...l, "MQTT Broker URL or Token is missing"]);
       setIsConnected(false);
       return;
     }
@@ -32,28 +32,29 @@ export function useMqttClient(deviceConfig?: MqttDeviceConfig): UseMqttClientRet
     }
 
     const connectUrl = deviceConfig.mqttBrokerUrl;
-
     const client = mqtt.connect(connectUrl, {
       clientId: deviceConfig.deviceId,
       username: deviceConfig.mqttToken,
       reconnectPeriod: 10000,
-      // kamu bisa tambahkan port/protocol jika broker kamu butuh
-      // port: deviceConfig.mqttBrokerPort,
-      // protocol: 'ws',
     });
 
     clientRef.current = client;
     const topic = deviceConfig.topic;
 
+    // Ambil QoS dari inputtambahan[0], default 0 jika tidak valid
+    const parsedQoS = parseInt(deviceConfig.inputtambahan?.[0] ?? "0");
+    const qos: 0 | 1 | 2 = [0, 1, 2].includes(parsedQoS) ? (parsedQoS as 0 | 1 | 2) : 0;
+
     client.on("connect", () => {
       setIsConnected(true);
       setLogs((l) => [...l, `Connected to ${connectUrl} as ${deviceConfig.id}`]);
+
       if (deviceConfig.type === "subscriber") {
-        client.subscribe(topic, (err) => {
+        client.subscribe(topic, { qos }, (err) => {
           if (err) {
-            setLogs((l) => [...l, `Failed to subscribe to ${topic}: ${err.message}`]);
+            setLogs((l) => [...l, `Failed to subscribe: ${err.message}`]);
           } else {
-            setLogs((l) => [...l, `Subscribed to ${topic}`]);
+            setLogs((l) => [...l, `Subscribed to ${topic} with QoS ${qos}`]);
           }
         });
       }
@@ -74,8 +75,7 @@ export function useMqttClient(deviceConfig?: MqttDeviceConfig): UseMqttClientRet
     });
 
     client.on("message", (topic, message) => {
-      const msgStr = message.toString();
-      setLogs((l) => [...l, `[${topic}] ${msgStr}`]);
+      setLogs((l) => [...l, `[${topic}] ${message.toString()}`]);
     });
 
     return () => {
@@ -90,16 +90,22 @@ export function useMqttClient(deviceConfig?: MqttDeviceConfig): UseMqttClientRet
       setLogs((l) => [...l, "Client not connected"]);
       return;
     }
+
     if (deviceConfig?.type !== "publisher") {
       setLogs((l) => [...l, "Publish is only allowed for publisher devices"]);
       return;
     }
 
-    clientRef.current.publish(deviceConfig.topic, message, (err) => {
+    const parsedQoS = parseInt(deviceConfig.inputtambahan?.[0] ?? "0");
+    const qos: 0 | 1 | 2 = [0, 1, 2].includes(parsedQoS) ? (parsedQoS as 0 | 1 | 2) : 0;
+
+    const options: IClientPublishOptions = { qos };
+
+    clientRef.current.publish(deviceConfig.topic, message, options, (err) => {
       if (err) {
         setLogs((l) => [...l, `Publish error: ${err.message}`]);
       } else {
-        setLogs((l) => [...l, `Published message: ${message}`]);
+        setLogs((l) => [...l, `Published message: "${message}" with QoS ${qos}`]);
       }
     });
   };

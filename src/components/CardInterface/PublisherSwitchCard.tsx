@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-// import { useMqttClient } from "@/apphooks/useMqttClient";
+import { useMqttClient } from "@/apphooks/useMqttClient";
 import type { MqttDeviceConfig } from "@/libmqttConfig";
 
 export default function PublisherButtonCard({ device, setDetail }: { device: MqttDeviceConfig, setDetail: (d: MqttDeviceConfig) => void }) {
@@ -12,8 +12,8 @@ export default function PublisherButtonCard({ device, setDetail }: { device: Mqt
     setIsActive(newState);
 
     const topicToPublish = newState
-      ? device.inputtambahan?.[2]
-      : device.inputtambahan?.[3];
+      ? device.inputtambahan?.[3]
+      : device.inputtambahan?.[4];
 
     if (topicToPublish && isConnected) {
       publish(topicToPublish);
@@ -23,8 +23,8 @@ export default function PublisherButtonCard({ device, setDetail }: { device: Mqt
   };
 
   const label = isActive
-    ? device.inputtambahan?.[0] || ""
-    : device.inputtambahan?.[1] || "";
+    ? device.inputtambahan?.[1] || ""
+    : device.inputtambahan?.[2] || "";
 
   return (
     <div

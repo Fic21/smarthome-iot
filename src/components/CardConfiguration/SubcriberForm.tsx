@@ -2,12 +2,12 @@ import React from "react";
 
 interface SubcriberFormProps {
   selectedInputTambahan: string[];
-  handleInputChangeDropdown: (value: string) => void;
+  handleInputChange: (index: number, value: string) => void;
 }
 
 export default function SubcriberForm({
   selectedInputTambahan,
-  handleInputChangeDropdown,
+  handleInputChange,
 }: SubcriberFormProps) {
   return (
     <div className="space-y-2">
@@ -15,7 +15,7 @@ export default function SubcriberForm({
       <select
         id="dropdown"
         value={selectedInputTambahan[0] || ""}
-        onChange={(e) => handleInputChangeDropdown(e.target.value)}
+        onChange={(e) => handleInputChange(0, e.target.value)}
         className="w-full border p-2 rounded"
       >
         <option value="">Pilih QoS</option>

@@ -1,20 +1,28 @@
-import { useEffect } from "react";
+import React from "react";
 
 interface TextFormProps {
   selectedInputTambahan: string[];
-  handleInputChange: (index: number, value: string) => void;
+  handleInputChangeDropdown: (value: string) => void;
 }
 
 export default function TextForm({
   selectedInputTambahan,
-  handleInputChange,
+  handleInputChangeDropdown,
 }: TextFormProps) {
-  useEffect(() => {
-    // Jika selectedInputTambahan[0] masih kosong, isi default
-    if (!selectedInputTambahan[0]) {
-      handleInputChange(0, "ini textForm");
-    }
-  }, [selectedInputTambahan, handleInputChange]);
-
-  return null; // tidak menampilkan apa-apa
+  return (
+    <div className="space-y-2">
+      <label htmlFor="dropdown">QoS:</label>
+      <select
+        id="dropdown"
+        value={selectedInputTambahan[0] || ""}
+        onChange={(e) => handleInputChangeDropdown(e.target.value)}
+        className="w-full border p-2 rounded"
+      >
+        <option value="">Pilih QoS</option>
+        <option value="0">0: At most once</option>
+        <option value="1">1: At least once</option>
+        <option value="2">2: Exactly once</option>
+      </select>
+    </div>
+  );
 }

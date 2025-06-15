@@ -9,7 +9,7 @@ export default function PublisherTextCard({ device, setDetail }) {
 
   const handleOkClick = (e) => {
     e.stopPropagation();
-    console.log(`Time selected: ${time} (${device.inputtambahan[0]} jam)`);
+    console.log(`Time selected: ${time} (${device.inputtambahan[1]} jam)`);
   };
 
   return (
@@ -39,7 +39,7 @@ export default function PublisherTextCard({ device, setDetail }) {
 
           <div className="flex flex-col space-y-2 border border-gray-300 rounded p-2 bg-white z-10 relative">
             <label className="text-xs text-gray-600 font-medium">
-              Pilih Waktu ({device.inputtambahan[0]} jam)
+              Pilih Waktu ({device.inputtambahan[1]} jam)
             </label>
             <input
               type="time"
