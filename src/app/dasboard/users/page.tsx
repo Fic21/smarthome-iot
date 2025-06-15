@@ -32,6 +32,7 @@ import TextForm from "@/componentsCardConfiguration/TextForm";
 import Light from "@/componentsCardConfiguration/LightForm";
 import Fan from "@/componentsCardConfiguration/FanForm";
 import Motor from "@/componentsCardConfiguration/MotorForm";
+import { subscriberOptions } from "@/apphooks/subscriberOptions";
 
 // ======================
 // MAIN DASHBOARD COMPONENT
@@ -48,6 +49,8 @@ export default function Dashboard() {
     setDetail,
     selectedPublisher,
     setSelectedPublisher,
+    selectedSubscriber,
+    setSelectedSubscriber,
     selectedInputTambahan,
     publisherOptions,
     handleSave,
@@ -129,6 +132,26 @@ export default function Dashboard() {
             </button>
           </div>
         )}
+        {/* ========== PILIHAN JENIS Subcriber ========== */}
+        {view === "subscriber"&&(
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
+            {subscriberOptions.map((option) => (
+              <button
+                key={option}
+                className="px-4 py-2 bg-green-400 text-white rounded hover:bg-green-600"
+                onClick={() => setSelectedSubscriber(option)}
+              >
+                {option}
+              </button>
+            ))}
+            <button
+              className="px-4 py-2 border border-gray-400 rounded hover:bg-gray-200 col-span-full"
+              onClick={() => setView(null)}
+            >
+              Kembali
+            </button>
+          </div>
+        )}
 
         {/* ========== PILIHAN JENIS PUBLISHER ========== */}
         {view === "publisher" && !selectedPublisher && (
@@ -152,7 +175,7 @@ export default function Dashboard() {
         )}
 
         {/* ========== FORM INPUT SUBSCRIBER / PUBLISHER ========== */}
-        {(view === "subscriber" || selectedPublisher) && (
+        {((view === "subscriber" && selectedSubscriber) || selectedPublisher) && (
           <div className="bg-white p-4 rounded shadow mb-4 max-w-md">
             <h2 className="text-lg font-semibold mb-2">
               Tambah {view === "subscriber" ? "Subscriber" : selectedPublisher}
@@ -175,7 +198,7 @@ export default function Dashboard() {
             />
             
             {/* Input Tambahan jika Subcriber */}
-            {!selectedPublisher && (
+            {selectedSubscriber === "Web" && (
               <div className="mb-2">
                 <SubcriberForm
                   selectedInputTambahan={selectedInputTambahan}
@@ -311,6 +334,7 @@ export default function Dashboard() {
                 className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-200"
                 onClick={() => {
                   setSelectedPublisher(null);
+                  setSelectedSubscriber(null);
                   setView(null);
                 }}
               >

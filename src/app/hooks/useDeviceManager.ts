@@ -3,6 +3,7 @@ import { useDeviceForm } from "./useDeviceForm";
 import { useDeviceList } from "./useDeviceList";
 import { useDeviceView } from "./useDeviceView";
 import { publisherOptions } from "./publisherOptions";
+import { subscriberOptions } from "./subscriberOptions";
 import {
   loadFromLocalStorage,
   saveToLocalStorage,
@@ -30,6 +31,9 @@ export function useDeviceManager() {
   const deviceList = useDeviceList();
   const deviceView = useDeviceView();
   const [selectedPublisher, setSelectedPublisher] = useState<string | null>(
+    null
+  );
+   const [selectedSubscriber, setSelectedSubscriber] = useState<string | null>(
     null
   );
 
@@ -97,10 +101,10 @@ export function useDeviceManager() {
               ? {
                   ...dev,
                   name:
-                    deviceForm.form.name || selectedPublisher || "Publisher",
+                    deviceForm.form.name,
                   topic: deviceForm.form.topic,
                   type: deviceView.view,
-                  category: selectedPublisher || undefined,
+                  category: selectedPublisher || selectedSubscriber,
                   inputtambahan:
                     deviceForm.selectedInputTambahan.length > 0
                       ? deviceForm.selectedInputTambahan
@@ -117,10 +121,10 @@ export function useDeviceManager() {
 
         deviceList.updateDevice({
           deviceId: deviceForm.form.deviceId,
-          name: deviceForm.form.name || selectedPublisher || "Publisher",
+          name: deviceForm.form.name,
           topic: deviceForm.form.topic,
           type: deviceView.view,
-          category: selectedPublisher || undefined,
+          category: selectedPublisher || selectedSubscriber,
           inputtambahan:
             deviceForm.selectedInputTambahan.length > 0
               ? deviceForm.selectedInputTambahan
@@ -137,7 +141,7 @@ export function useDeviceManager() {
           name: deviceForm.form.name || selectedPublisher || "Publisher",
           topic: deviceForm.form.topic,
           type: deviceView.view,
-          category:selectedPublisher||deviceView.view,
+          category:selectedPublisher||selectedSubscriber,
           inputtambahan:
             deviceForm.selectedInputTambahan.length > 0
               ? deviceForm.selectedInputTambahan
@@ -169,7 +173,7 @@ export function useDeviceManager() {
           name: deviceForm.form.name || selectedPublisher || "Publisher",
           topic: deviceForm.form.topic,
           type: deviceView.view,
-          category: selectedPublisher || undefined,
+          category: selectedPublisher || selectedSubscriber,
           inputtambahan:
             deviceForm.selectedInputTambahan.length > 0
               ? deviceForm.selectedInputTambahan
@@ -186,10 +190,10 @@ export function useDeviceManager() {
         // Tambahkan POST ke endpoint deviceConfiguration
         const postPayload = {
           deviceId: newDeviceId,
-          name: deviceForm.form.name || selectedPublisher || "Publisher",
+          name: deviceForm.form.name,
           topic: deviceForm.form.topic,
           type: deviceView.view,
-          category: selectedPublisher||deviceView.view,
+          category: selectedPublisher||selectedSubscriber,
           inputtambahan:
             deviceForm.selectedInputTambahan.length > 0
               ? deviceForm.selectedInputTambahan
@@ -215,6 +219,7 @@ export function useDeviceManager() {
       // Reset form
       deviceForm.setForm({ name: "", topic: "", deviceId: undefined });
       setSelectedPublisher(null);
+      setSelectedSubscriber(null);
       deviceView.setView(null);
       deviceForm.setSelectedInputTambahan([]);
     } catch (error) {
@@ -252,6 +257,7 @@ export function useDeviceManager() {
       if (deviceForm.form.deviceId === deviceId) {
         deviceForm.setForm({ name: "", topic: "", deviceId: undefined });
         setSelectedPublisher(null);
+        setSelectedSubscriber(null);
         deviceView.setView(null);
         deviceForm.setSelectedInputTambahan([]);
       }
@@ -262,21 +268,32 @@ export function useDeviceManager() {
 
   // Fungsi untuk mengisi form saat edit device
   const handleEdit = (deviceId: string) => {
-    const deviceToEdit = devices.find((dev) => dev.deviceId === deviceId);
-    if (!deviceToEdit) return;
+  const deviceToEdit = devices.find((dev) => dev.deviceId === deviceId);
+  if (!deviceToEdit) return;
 
-    deviceForm.setForm({
-      deviceId: deviceToEdit.deviceId,
-      name: deviceToEdit.name,
-      topic: deviceToEdit.topic,
-    });
-    deviceView.setView(deviceToEdit.type);
-    setSelectedPublisher(
-      deviceToEdit.type === "publisher" ? deviceToEdit.category || null : null
-    );
-    deviceForm.setSelectedInputTambahan(deviceToEdit.inputtambahan || []);
-    deviceView.setDetail(null);
-  };
+  deviceForm.setForm({
+    deviceId: deviceToEdit.deviceId,
+    name: deviceToEdit.name,
+    topic: deviceToEdit.topic,
+  });
+
+  deviceView.setView(deviceToEdit.type);
+
+  if (deviceToEdit.type === "publisher") {
+    setSelectedPublisher(deviceToEdit.category || null);
+    setSelectedSubscriber(null);
+  } else if (deviceToEdit.type === "subscriber") {
+    setSelectedSubscriber(deviceToEdit.category || null);
+    setSelectedPublisher(null);
+  } else {
+    setSelectedPublisher(null);
+    setSelectedSubscriber(null);
+  }
+
+  deviceForm.setSelectedInputTambahan(deviceToEdit.inputtambahan || []);
+  deviceView.setDetail(null);
+};
+
 
   return {
     ...deviceForm,
@@ -284,7 +301,10 @@ export function useDeviceManager() {
     ...deviceView,
     selectedPublisher,
     setSelectedPublisher,
+    selectedSubscriber,
+    setSelectedSubscriber,
     publisherOptions,
+    subscriberOptions,
     devices,
     setDevices,
     handleSave,
