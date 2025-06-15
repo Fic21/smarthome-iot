@@ -10,5 +10,5 @@ export const publisherOptions = [
   "Light",
   "Fan",
   "Motor",
-  "Device IoT",
+  "Publisher Device IoT",
 ];

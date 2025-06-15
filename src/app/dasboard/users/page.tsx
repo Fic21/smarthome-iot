@@ -219,8 +219,8 @@ export default function Dashboard() {
                 />
               </div>
             )}
-            {/* Input Tambahan jika Text */}
-            {selectedPublisher === "Device IoT" && (
+            {/* Input Tambahan jika Publisher Device IOT */}
+            {selectedPublisher === "Publisher Device IoT" && (
               <div className="mb-2">
                 <DeviceIotForm
                   selectedInputTambahan={selectedInputTambahan}
@@ -392,9 +392,9 @@ export default function Dashboard() {
                   {device.type === "subscriber" && device.category ==="Subscriber Device IoT"&& (
                     <SubscriberDeviceIotCard key={device.id} device={device} setDetail={setDetail} />
                   )}
-                  {/* Jika Device IoT */}
+                  {/* Jika Publisher Device IoT */}
                   {device.type === "publisher" &&
-                    device.category === "Device IoT" && (
+                    device.category === "Publisher Device IoT" && (
                       <PublisherDeviceIotCard
                         key={device.id}
                         device={device}
