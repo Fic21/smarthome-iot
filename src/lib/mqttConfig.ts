@@ -14,7 +14,7 @@ export interface MqttDeviceConfig {
 
 // Ambil semua device dari localStorage, validasi properti wajib
 export function getAllMqttDevices(): MqttDeviceConfig[] {
-  const data = localStorage.getItem("mqttDevices");
+  const data = localStorage.getItem("device_manager_devices");
   if (!data) return [];
   try {
     const parsed = JSON.parse(data) as MqttDeviceConfig[];

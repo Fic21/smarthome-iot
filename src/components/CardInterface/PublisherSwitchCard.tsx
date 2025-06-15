@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useMqttClient } from "@/apphooks/useMqttClient";
+// import { useMqttClient } from "@/apphooks/useMqttClient";
 import type { MqttDeviceConfig } from "@/libmqttConfig";
 
 export default function PublisherButtonCard({ device, setDetail }: { device: MqttDeviceConfig, setDetail: (d: MqttDeviceConfig) => void }) {

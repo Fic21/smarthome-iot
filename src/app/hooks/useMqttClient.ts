@@ -34,7 +34,7 @@ export function useMqttClient(deviceConfig?: MqttDeviceConfig): UseMqttClientRet
     const connectUrl = deviceConfig.mqttBrokerUrl;
 
     const client = mqtt.connect(connectUrl, {
-      clientId: deviceConfig.id,
+      clientId: deviceConfig.deviceId,
       username: deviceConfig.mqttToken,
       reconnectPeriod: 10000,
       // kamu bisa tambahkan port/protocol jika broker kamu butuh

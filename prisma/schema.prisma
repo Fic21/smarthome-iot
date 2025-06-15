@@ -8,10 +8,10 @@ datasource db {
 }
 
 model User {
-  id       Int      @id @default(autoincrement())
-  email    String   @unique
-  name     String
-  password String
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String
+  password  String
   createdAt DateTime @default(now())
 
   devices DeviceConfiguration[] // relasi one-to-many ke device
@@ -33,15 +33,41 @@ model DeviceConfiguration {
   mqttToken       String?
   mqttTokenExpiry DateTime?
 
-  user User        @relation(fields: [userId], references: [id])
-  logs DeviceLog[]
+  user  User                  @relation(fields: [userId], references: [id])
+  logsP DeviceLogPublisher[]
+  logsS DeviceLogSubscriber[]
 }
 
-model DeviceLog {
-  id        Int      @id @default(autoincrement())
-  deviceId  String
-  timestamp DateTime @default(now())
-  logData   Json
+model DeviceLogPublisher {
+  id          Int      @id @default(autoincrement())
+  deviceId    String
+  username    String
+  topic       String
+  payloadText String?
+  payLoadJson Json?
+  qos         Int
+  timestamp   BigInt
+  node        String
+  event       String
+  createdAt   DateTime @default(now())
+
+  device DeviceConfiguration @relation(fields: [deviceId], references: [deviceId])
+}
+
+model DeviceLogSubscriber {
+  id           Int    @id @default(autoincrement())
+  fromClientId String
+  fromUsername String
+  deviceId     String
+  username     String
+  topic        String
+  payloadText String?
+  payLoadJson Json?
+  qos          Int
+  timestamp    BigInt
+  node         String
+  event        String
+
   createdAt DateTime @default(now())
 
   device DeviceConfiguration @relation(fields: [deviceId], references: [deviceId])

@@ -57,6 +57,7 @@ export function useDeviceManager() {
 
   const handleSave = async () => {
     const manualBrokerUrl = "ws://localhost:8083/mqtt";
+    // const manualBrokerUrl = "tcp://192.168.118.204:8083/mqtt";
     const manualBrokerPort = "1883";
 
     if (!deviceView.view) return;
