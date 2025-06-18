@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '@/lib/prisma'; // Singleton Prisma (lihat di langkah 5)
+import { createHash } from "crypto";
+
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret'; // simpan di .env
 
@@ -29,10 +31,13 @@ export async function POST(req: Request) {
       { expiresIn: '7d' }
     );
 
+    //hash username untuk keperluan topik
+    const hashedName = createHash("sha256").update(user.name).digest("hex").slice(0, 12);
+
     // Simpan di cookie HTTP-only
     const response = NextResponse.json({
       message: 'Login successful',
-      user: { id: user.id, name: user.name, email: user.email },
+      user: { id: user.id, name: hashedName, email: user.email },
     });
 
     response.cookies.set({
