@@ -68,6 +68,7 @@ export function useDeviceManager() {
     if (!deviceForm.form.topic.trim()) return;
 
     const currentUserId = Number(localStorage.getItem("currentUserId"));
+    const currentUserName = String(localStorage.getItem("currentUserName"));
     if (!currentUserId) {
       alert("User belum login, silakan login terlebih dahulu.");
       return;
@@ -102,7 +103,7 @@ export function useDeviceManager() {
                   ...dev,
                   name:
                     deviceForm.form.name,
-                  topic: deviceForm.form.topic,
+                  topic: `${currentUserName}/${deviceForm.form.topic}`,
                   type: deviceView.view,
                   category: selectedPublisher || selectedSubscriber,
                   inputtambahan:
@@ -122,7 +123,7 @@ export function useDeviceManager() {
         deviceList.updateDevice({
           deviceId: deviceForm.form.deviceId,
           name: deviceForm.form.name,
-          topic: deviceForm.form.topic,
+          topic: `${currentUserName}/${deviceForm.form.topic}`,
           type: deviceView.view,
           category: selectedPublisher || selectedSubscriber,
           inputtambahan:
@@ -139,7 +140,7 @@ export function useDeviceManager() {
         // Tambahkan PUT ke endpoint deviceConfiguration
         const putPayload = {
           name: deviceForm.form.name || selectedPublisher || "Publisher",
-          topic: deviceForm.form.topic,
+          topic: `${currentUserName}/${deviceForm.form.topic}`,
           type: deviceView.view,
           category:selectedPublisher||selectedSubscriber,
           inputtambahan:
@@ -171,7 +172,7 @@ export function useDeviceManager() {
           userId: Number(currentUserId),
           deviceId: newDeviceId,
           name: deviceForm.form.name || selectedPublisher || "Publisher",
-          topic: deviceForm.form.topic,
+          topic: `${currentUserName}/${deviceForm.form.topic}`,
           type: deviceView.view,
           category: selectedPublisher || selectedSubscriber,
           inputtambahan:
@@ -191,7 +192,7 @@ export function useDeviceManager() {
         const postPayload = {
           deviceId: newDeviceId,
           name: deviceForm.form.name,
-          topic: deviceForm.form.topic,
+          topic: `${currentUserName}/${deviceForm.form.topic}`,
           type: deviceView.view,
           category: selectedPublisher||selectedSubscriber,
           inputtambahan:
