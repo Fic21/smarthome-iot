@@ -1,98 +1,97 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useMqttClient } from "@/apphooks/useMqttClient";
+"use client";
+
+import React, { useState } from "react";
 import type { MqttDeviceConfig } from "@/libmqttConfig";
+import { Copy, Check } from "lucide-react";
 
 interface PublisherDeviceIotCardProps {
   device: MqttDeviceConfig;
-  setDetail?: (device: MqttDeviceConfig) => void;
+  setDetail: (device: MqttDeviceConfig) => void;
 }
 
-export default function PublisherDeviceIotCard({ device, setDetail }: PublisherDeviceIotCardProps) {
-  const [inputValue, setInputValue] = useState("");
-  const { isConnected, logs, publish } = useMqttClient(device);
+function LabeledRow({
+  label,
+  value,
+  canCopy = false,
+  asInput = false,
+}: {
+  label: string;
+  value: string;
+  canCopy?: boolean;
+  asInput?: boolean;
+}) {
+  const [copied, setCopied] = useState(false);
 
-  const logsEndRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (logsEndRef.current) {
-      logsEndRef.current.scrollTop = logsEndRef.current.scrollHeight;
-    }
-  }, [logs]);
-
-  const handlePublish = () => {
-    if (!inputValue.trim()) return;
-    publish(inputValue.trim());
-    setInputValue("");
+  const handleCopy = () => {
+    if (!canCopy) return;
+    navigator.clipboard.writeText(value);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
-  // const latestLog = logs.length > 0 ? logs[logs.length - 1] : null;
-
   return (
-    <div
-      className="bg-green-50 border border-green-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer"
-      onClick={() => setDetail && setDetail(device)}
-    >
-      {/* STATUS */}
-      <div className="flex items-center justify-between mb-2">
-        <div>
-          <div className="text-xs text-gray-600 font-medium">Nama Device</div>
-          <div className="font-semibold text-lg text-green-800 truncate">{device.name}</div>
-        </div>
-        <div className="flex items-center">
-          <span
-            className={`text-sm font-semibold ${
-              isConnected ? "text-green-600" : "text-red-600"
-            }`}
-          >
-            {/* {isConnected ? "🟢 Connected" : "🔴 Disconnected"} */}
-          </span>
-        </div>
-      </div>
-
-      {/* TOPIK */}
-      <div className="mb-2">
-        <div className="text-xs text-gray-600 font-medium">Topik</div>
-        <div className="text-sm text-green-600 break-all">{device.topic}</div>
-      </div>
-
-      {/* INPUT PESAN */}
-      <div className="mb-2">
+    <div className="flex items-center mb-2 text-sm text-blue-600">
+      <span className="w-40 text-gray-600 font-medium">{label}:</span>
+      {asInput ? (
         <input
           type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-          placeholder="Masukkan pesan..."
-          onClick={(e) => e.stopPropagation()}
+          readOnly
+          value={value}
+          className="flex-1 bg-gray-50 px-2 py-1 rounded border text-sm font-mono text-blue-800 truncate"
         />
-      </div>
-
-      {/* TOMBOL PUBLISH */}
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          handlePublish();
-        }}
-        disabled={!isConnected || !inputValue.trim()}
-        className={`w-full py-2 rounded-md font-semibold text-white ${
-          isConnected ? "bg-green-600 hover:bg-green-700" : "bg-gray-400 cursor-not-allowed"
-        }`}
-      >
-        Kirim Pesan
-      </button>
-
-      {/* LOGS */}
-      <div className="mt-2">
-        <div className="text-xs text-gray-600 font-medium">Logs</div>
-        <div
-          ref={logsEndRef}
-          className="text-sm text-gray-700 break-all h-20 overflow-auto border border-gray-200 rounded p-2 bg-white"
+      ) : (
+        <span className="flex-1 break-all">{value}</span>
+      )}
+      {canCopy && (
+        <span
+          onClick={handleCopy}
+          title="Klik untuk menyalin"
+          className="ml-2 text-gray-500 hover:text-black cursor-pointer transition"
         >
-          {logs.length === 0
-            ? "Belum ada aktivitas"
-            : logs.map((log, i) => <div key={i}>{log}</div>)}
+          {copied ? <Check size={16} className="text-green-600" /> : <Copy size={16} />}
+        </span>
+      )}
+    </div>
+  );
+}
+
+export default function SubscriberDeviceIotCard({
+  device,
+  setDetail,
+}: PublisherDeviceIotCardProps) {
+  return (
+    <div
+      className="bg-blue-50 border border-blue-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer"
+      onClick={() => setDetail(device)}
+    >
+      {/* Nama Device */}
+      <div className="mb-1">
+        <div className="text-xs text-gray-600 font-medium mb-1">Nama Device</div>
+        <div className="font-semibold text-lg text-blue-800 truncate">
+          {device.name}
         </div>
       </div>
+
+      {/* Detail */}
+      <LabeledRow label="Category" value={device.category}/>
+      <LabeledRow label="MQTT Server" value="http://localhost" canCopy />
+      <LabeledRow label="MQTT Port" value="1883" canCopy />
+      <LabeledRow
+        label="Token Username"
+        value={device.mqttToken}
+        canCopy
+        asInput
+      />
+      <LabeledRow label="Topik" value={device.topic} canCopy asInput />
+
+      {/* Input Tambahan */}
+      {device.inputtambahan?.length > 0 && (
+        <LabeledRow
+          label="QoS"
+          value={device.inputtambahan[0]}
+          canCopy
+        />
+      )}
     </div>
   );
 }
