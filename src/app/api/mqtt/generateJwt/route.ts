@@ -5,7 +5,7 @@ const SECRET = process.env.JWT_SECRET || "rahasia_super_secret";
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId, deviceId, topic, type } = await req.json();
+    const { userId, clientid, topic, type } = await req.json();
 
     if (!userId || !topic || !type) {
       return NextResponse.json(
@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
 
     const payload = {
       userId,
-      deviceId,
+      clientid,
       topic,
       type,
     };

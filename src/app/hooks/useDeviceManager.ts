@@ -75,9 +75,19 @@ export function useDeviceManager() {
       return;
     }
 
+     // ✅ Buat UUID jika belum ada
+  const deviceId = deviceForm.form.deviceId || uuidv4();
+
+  if (!deviceForm.form.deviceId) {
+    deviceForm.setForm((prev) => ({
+      ...prev,
+      deviceId,
+    }));
+  }
+
     const payloadJwt= {
       userId: currentUserId,
-      deviceId: deviceForm.form.deviceId || "",
+      clientid: deviceId,
       topic: deviceForm.form.topic,
       type: deviceView.view,
     };
@@ -168,7 +178,7 @@ export function useDeviceManager() {
         });
       } else {
         // ADD new device
-        const newDeviceId = uuidv4();
+        const newDeviceId = deviceId;
         const newDevice = {
           userId: Number(currentUserId),
           deviceId: newDeviceId,
