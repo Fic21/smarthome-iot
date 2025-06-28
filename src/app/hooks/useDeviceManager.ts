@@ -88,7 +88,7 @@ export function useDeviceManager() {
     const payloadJwt= {
       userId: currentUserId,
       clientid: deviceId,
-      topic: deviceForm.form.topic,
+      topic: `${currentUserName}/${deviceForm.form.topic}`,
       type: deviceView.view,
     };
 
