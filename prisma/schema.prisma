@@ -36,6 +36,7 @@ model DeviceConfiguration {
   user  User                  @relation(fields: [userId], references: [id])
   logsP DeviceLogPublisher[]
   logsS DeviceLogSubscriber[]
+  connectionLogs DeviceConnectionLog[]
 }
 
 model DeviceLogPublisher {
@@ -51,8 +52,7 @@ model DeviceLogPublisher {
   event       String
   createdAt   DateTime @default(now())
 
-  // device DeviceConfiguration @relation(fields: [deviceId], references: [deviceId])
-    device DeviceConfiguration @relation(fields: [deviceId], references: [deviceId], onDelete: Cascade)
+  device DeviceConfiguration @relation(fields: [deviceId], references: [deviceId], onDelete: Cascade)
 }
 
 model DeviceLogSubscriber {
@@ -62,15 +62,27 @@ model DeviceLogSubscriber {
   deviceId     String
   username     String
   topic        String
-  payloadText String?
-  payLoadJson Json?
+  payloadText  String?
+  payLoadJson  Json?
   qos          Int
   timestamp    BigInt
   node         String
   event        String
+  createdAt    DateTime @default(now())
 
-  createdAt DateTime @default(now())
+  device DeviceConfiguration @relation(fields: [deviceId], references: [deviceId], onDelete: Cascade)
+}
 
-  // device DeviceConfiguration @relation(fields: [deviceId], references: [deviceId])
-    device DeviceConfiguration @relation(fields: [deviceId], references: [deviceId], onDelete: Cascade)
+model DeviceConnectionLog {
+  id          Int      @id @default(autoincrement())
+  deviceId    String
+  username    String?    // opsional, bisa dari payload
+  event       String     // "connected" atau "disconnected"
+  reason      String?    // alasan disconnect, misal "normal"
+  ipAddress   String?    // dari payload connect
+  keepalive   Int?       // dari payload connect
+  timestamp   BigInt     // waktu kejadian dari EMQX (epoch ms)
+  createdAt   DateTime   @default(now())
+
+  device DeviceConfiguration @relation(fields: [deviceId], references: [deviceId], onDelete: Cascade)
 }
