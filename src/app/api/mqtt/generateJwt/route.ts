@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Token expire dalam 1 jam (3600 detik)
-    const expiresIn = 3600;
+    const expiresIn = 36000;
 
     const payload = {
       userId,
