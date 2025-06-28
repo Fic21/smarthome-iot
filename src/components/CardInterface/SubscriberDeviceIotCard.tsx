@@ -1,8 +1,9 @@
-"use client";
+'use client'
 
 import React, { useState } from "react";
 import type { MqttDeviceConfig } from "@/libmqttConfig";
 import { Copy, Check } from "lucide-react";
+import { useDeviceStatus } from '@/apphooks/useDeviceStatus'; // pastikan path benar
 
 interface SubscriberDeviceIotCardProps {
   device: MqttDeviceConfig;
@@ -59,21 +60,41 @@ export default function SubscriberDeviceIotCard({
   device,
   setDetail,
 }: SubscriberDeviceIotCardProps) {
+  const { status } = useDeviceStatus(device.deviceId);
+
   return (
     <div
       className="bg-blue-50 border border-blue-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer"
       onClick={() => setDetail(device)}
     >
-      {/* Nama Device */}
-      <div className="mb-1">
-        <div className="text-xs text-gray-600 font-medium mb-1">Nama Device</div>
-        <div className="font-semibold text-lg text-blue-800 truncate">
-          {device.name}
+      {/* Header: Nama Device + Status */}
+      <div className="flex items-center justify-between mb-2">
+        <div>
+          <div className="text-xs text-gray-600 font-medium mb-1">Nama Device</div>
+          <div className="font-semibold text-lg text-blue-800 truncate">{device.name}</div>
+        </div>
+        <div>
+          <span
+            className={`text-sm font-semibold ${
+              status === 'connected'
+                ? 'text-green-600'
+                : status === 'disconnected'
+                ? 'text-red-600'
+                : 'text-gray-400'
+            }`}
+            aria-live="polite"
+          >
+            {status === 'connected'
+              ? '🟢 Connected'
+              : status === 'disconnected'
+              ? '🔴 Disconnected'
+              : '⚪ Unknown'}
+          </span>
         </div>
       </div>
 
       {/* Detail */}
-      <LabeledRow label="Category" value={device.category}/>
+      <LabeledRow label="Category" value={device.category} />
       <LabeledRow label="MQTT Server" value="http://localhost" canCopy />
       <LabeledRow label="MQTT Port" value="1883" canCopy />
       <LabeledRow
@@ -86,11 +107,7 @@ export default function SubscriberDeviceIotCard({
 
       {/* Input Tambahan */}
       {device.inputtambahan?.length > 0 && (
-        <LabeledRow
-          label="QoS"
-          value={device.inputtambahan[0]}
-          canCopy
-        />
+        <LabeledRow label="QoS" value={device.inputtambahan[0]} canCopy />
       )}
     </div>
   );
