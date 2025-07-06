@@ -61,8 +61,9 @@ export function useDeviceManager() {
 
   const handleSave = async () => {
     // const manualBrokerUrl = "ws://192.168.7.2:8083/mqtt"; //ini untuk router 
-    const manualBrokerUrl = "ws://localhost:8083/mqtt"; //ini local 
+    // const manualBrokerUrl = "ws://localhost:8083/mqtt"; //ini local 
     // const manualBrokerUrl = "tcp://192.168.118.204:8083/mqtt";
+    const manualBrokerUrl = process.env.NEXT_PUBLIC_MQTT_BROKER_URL_WEBSOCKET!;
     const manualBrokerPort = "1883";
 
     if (!deviceView.view) return;

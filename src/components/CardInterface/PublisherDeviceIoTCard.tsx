@@ -132,7 +132,7 @@ export default function SubscriberDeviceIotCard({
 
       {/* Informasi Detail */}
       <LabeledRow label="Category" value={device?.category || "-"} />
-      <LabeledRow label="MQTT Server" value="http://localhost" canCopy />
+      <LabeledRow label="MQTT Server" value={process.env.NEXT_PUBLIC_MQTT_BROKER_URL_TCP||"ENV Not Found"} canCopy />
       <LabeledRow label="MQTT Port" value="1883" canCopy />
       <LabeledRow
         label="Token Username"
